@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- 설정값은 소스에 하드코딩하지 않는다 — 빈 파라미터만 생성하고 값은 서버에서 직접 입력.
+         계정정보(certkey/corpnum/id/mode)는 barobill 공통 키(barobill.*)로 관리. -->
+    <record id="param_barobill_sms_server_test" model="ir.config_parameter">
+        <field name="key">barobill_sms.test.server</field>
+        <field name="value"></field>
+    </record>
+    <record id="param_barobill_sms_server_prod" model="ir.config_parameter">
+        <field name="key">barobill_sms.prod.server</field>
+        <field name="value"></field>
+    </record>
+    <record id="param_barobill_sms_default_from" model="ir.config_parameter">
+        <field name="key">barobill_sms.default_from</field>
+        <field name="value"></field>
+    </record>
+</odoo>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 통합 루트 메뉴 — 채널 모듈(SMS/FAX/알림톡)이 이 루트 아래에 카테고리를 추가한다. -->
+    <menuitem id="barobill_menu_root"
+              name="바로빌"
+              web_icon="barobill,static/description/icon.png"
+              sequence="100"/>
+
+    <!-- 설정 (시스템 관리자) — 클릭 시 바로빌 통합 설정 화면으로 이동 -->
+    <record id="barobill_config_action" model="ir.actions.act_window">
+        <field name="name">바로빌 설정</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'barobill'}</field>
+    </record>
+
+    <menuitem id="barobill_config_menu"
+              name="설정"
+              parent="barobill_menu_root"
+              action="barobill_config_action"
+              groups="base.group_system"
+              sequence="90"/>
+</odoo>

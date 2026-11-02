@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 바로빌 앱(barobill 기반 모듈)에 FAX 발송 설정 블록을 추가. -->
+    <record id="res_config_settings_view_form_barobill_fax" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.barobill.fax</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="barobill.res_config_settings_view_form_barobill"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='barobill']" position="inside">
+                <block title="FAX" name="barobill_fax_block">
+                    <setting id="barobill_fax_test_server_setting" string="테스트 서버 URL">
+                        <field name="barobill_fax_test_server" readonly="1"/>
+                    </setting>
+                    <setting id="barobill_fax_prod_server_setting" string="운영 서버 URL">
+                        <field name="barobill_fax_prod_server" readonly="1"/>
+                    </setting>
+                    <setting id="barobill_fax_test_ftp_host_setting" string="테스트 FTP 호스트">
+                        <field name="barobill_fax_test_ftp_host" readonly="1"/>
+                    </setting>
+                    <setting id="barobill_fax_prod_ftp_host_setting" string="운영 FTP 호스트">
+                        <field name="barobill_fax_prod_ftp_host" readonly="1"/>
+                    </setting>
+                    <setting id="barobill_fax_test_ftp_port_setting" string="테스트 FTP 포트">
+                        <field name="barobill_fax_test_ftp_port" options="{'enable_formatting': false}" readonly="1"/>
+                    </setting>
+                    <setting id="barobill_fax_prod_ftp_port_setting" string="운영 FTP 포트">
+                        <field name="barobill_fax_prod_ftp_port" options="{'enable_formatting': false}" readonly="1"/>
+                    </setting>
+                    <setting id="barobill_fax_default_from_setting" string="기본 발신번호">
+                        <field name="barobill_fax_default_from"/>
+                    </setting>
+                    <setting id="barobill_fax_ftp_password_setting" string="FTP 비밀번호">
+                        <field name="barobill_fax_ftp_password" password="True"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

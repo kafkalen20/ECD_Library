@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- 설정값은 소스에 하드코딩하지 않는다 — 빈 파라미터만 생성하고 값은 서버에서 직접 입력.
+         noupdate="1" 라 이후 모듈 업데이트 시 사용자 입력값이 보존된다. -->
+
+    <!-- 활성 환경 — 라디오 필드라 안전 기본값 test 로 생성(이후 설정에서 전환). -->
+    <record id="param_barobill_mode" model="ir.config_parameter">
+        <field name="key">barobill.mode</field>
+        <field name="value">test</field>
+    </record>
+
+    <!-- 공통 계정 (인증값) -->
+    <record id="param_barobill_certkey" model="ir.config_parameter">
+        <field name="key">barobill.certkey</field>
+        <field name="value"></field>
+    </record>
+    <record id="param_barobill_corpnum" model="ir.config_parameter">
+        <field name="key">barobill.corpnum</field>
+        <field name="value"></field>
+    </record>
+    <record id="param_barobill_id" model="ir.config_parameter">
+        <field name="key">barobill.id</field>
+        <field name="value"></field>
+    </record>
+
+    <!-- 공통 API(포인트/오류조회)용 서버 URL -->
+    <record id="param_barobill_server_test" model="ir.config_parameter">
+        <field name="key">barobill.test.server</field>
+        <field name="value"></field>
+    </record>
+    <record id="param_barobill_server_prod" model="ir.config_parameter">
+        <field name="key">barobill.prod.server</field>
+        <field name="value"></field>
+    </record>
+</odoo>

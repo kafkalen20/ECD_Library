@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="barobill_alimtalk_result_view_list" model="ir.ui.view">
+        <field name="name">barobill.alimtalk.result.list</field>
+        <field name="model">barobill.alimtalk.result</field>
+        <field name="arch" type="xml">
+            <list string="알림톡 발송 결과" create="false" edit="false" delete="false">
+                <field name="send_date"/>
+                <field name="template_name"/>
+                <field name="to_number"/>
+                <field name="to_name"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == '전송성공'"
+                       decoration-danger="state == '전송실패'"/>
+                <field name="error_message" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="barobill_alimtalk_result_view_form" model="ir.ui.view">
+        <field name="name">barobill.alimtalk.result.form</field>
+        <field name="model">barobill.alimtalk.result</field>
+        <field name="arch" type="xml">
+            <form string="알림톡 발송 결과" create="false" edit="false" delete="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="send_date"/>
+                            <field name="template_name"/>
+                            <field name="state"/>
+                        </group>
+                        <group>
+                            <field name="to_number"/>
+                            <field name="to_name"/>
+                        </group>
+                    </group>
+                    <separator string="발송내용"/>
+                    <field name="message" nolabel="1" readonly="1"
+                           style="width:100%;" placeholder=""/>
+                    <group string="오류 메시지">
+                        <field name="error_message" nolabel="1" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="barobill_alimtalk_result_action" model="ir.actions.act_window">
+        <field name="name">발송 결과</field>
+        <field name="res_model">barobill.alimtalk.result</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

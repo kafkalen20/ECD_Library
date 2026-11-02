@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="edb_security.DeviceAccessDashboard">
+        <div class="edb-access-dash h-100 overflow-auto p-3">
+
+            <!-- ── 헤더 (통합거래 대시보드 스타일) ── -->
+            <div class="edb-dash-header d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+                <h2 class="edb-dash-title mb-0">
+                    <i class="fa fa-users me-2 text-primary"/>사용자 접속 현황
+                </h2>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="btn-group btn-group-sm period-group" role="group">
+                        <t t-foreach="PERIODS" t-as="p" t-key="p.key">
+                            <button type="button"
+                                    t-attf-class="btn {{ state.period === p.key ? 'btn-primary' : 'btn-outline-primary' }}"
+                                    t-on-click="() => this.setPeriod(p.key)">
+                                <t t-esc="p.label"/>
+                            </button>
+                        </t>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary" t-on-click="onRefresh" t-att-disabled="state.loading">
+                        <i t-attf-class="fa fa-refresh {{ state.loading ? 'fa-spin' : '' }} me-1"/>새로고침
+                    </button>
+                    <button class="btn btn-sm btn-primary" t-on-click="onExportXlsx" t-att-disabled="state.loading">
+                        <i class="fa fa-download me-1"/>엑셀
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── 로딩 ── -->
+            <div t-if="state.loading" class="text-center p-5 text-muted">
+                <i class="fa fa-spinner fa-spin fa-2x"/>
+                <p class="mt-2">데이터를 불러오는 중입니다...</p>
+            </div>
+
+            <t t-elif="state.data">
+                <!-- ═══ KPI (4칸 균등) ═══ -->
+                <div class="row row-cols-2 row-cols-md-2 row-cols-lg-4 g-3 mb-3">
+                    <!-- 오늘 접속 (강조) -->
+                    <div class="col">
+                        <div class="card h-100 kpi-primary"><div class="card-body">
+                            <span class="small fw-semibold" style="opacity:.85;">오늘 접속 사용자</span>
+                            <h3 class="fw-bold mt-2 mb-2 kpi-value"><t t-esc="state.data.kpi.today"/><span class="fs-6 fw-normal" style="opacity:.8;"> 명</span></h3>
+                            <span class="kpi-pill"><t t-esc="deltaArrow"/> <t t-esc="deltaText"/></span>
+                        </div></div>
+                    </div>
+                    <!-- WAU -->
+                    <div class="col">
+                        <div class="card h-100"><div class="card-body">
+                            <span class="text-muted small fw-semibold">이번 주 활성 (WAU)</span>
+                            <h3 class="fw-bold mt-2 mb-3 kpi-value"><t t-esc="state.data.kpi.wau"/><span class="fs-6 text-muted fw-normal"> / <t t-esc="state.data.kpi.total_users"/>명</span></h3>
+                            <div class="progress mt-1 mb-2" style="height:6px;">
+                                <div class="progress-bar" t-attf-style="width:{{ wauPct }}%; background:#714b67;"/>
+                            </div>
+                        </div></div>
+                    </div>
+                    <!-- MAU -->
+                    <div class="col">
+                        <div class="card h-100"><div class="card-body">
+                            <span class="text-muted small fw-semibold">이번 달 활성 (MAU)</span>
+                            <h3 class="fw-bold mt-2 mb-3 kpi-value"><t t-esc="state.data.kpi.mau"/><span class="fs-6 text-muted fw-normal"> / <t t-esc="state.data.kpi.total_users"/>명</span></h3>
+                            <div class="progress mt-1 mb-2" style="height:6px;">
+                                <div class="progress-bar" t-attf-style="width:{{ mauPct }}%; background:#714b67;"/>
+                            </div>
+                        </div></div>
+                    </div>
+                    <!-- 로그인 실패 -->
+                    <div class="col">
+                        <div class="card h-100"><div class="card-body">
+                            <span class="text-muted small fw-semibold">로그인 실패</span>
+                            <h3 class="fw-bold mt-2 mb-2 kpi-value"><t t-esc="state.data.kpi.failed_login"/><span class="fs-6 text-muted fw-normal"> 건</span></h3>
+                            <div>
+                                <span t-attf-class="badge-soft {{ failedStatus().cls }}"><t t-esc="failedStatus().label"/></span>
+                                <small class="text-muted ms-1"><t t-esc="failedStatus().note"/></small>
+                            </div>
+                        </div></div>
+                    </div>
+                </div>
+
+                <!-- ═══ 추이 + 기기 (추이=시간대별과 동일 크기 md-7·250px) ═══ -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-7">
+                        <div class="card h-100"><div class="card-body">
+                            <h5 class="fw-bold mb-2"><t t-esc="trendTitle"/></h5>
+                            <div style="position:relative;height:250px;"><canvas t-ref="trendChart"/></div>
+                        </div></div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="card h-100"><div class="card-body">
+                            <h5 class="fw-bold mb-2">접속 기기</h5>
+                            <div style="position:relative;height:250px;"><canvas t-ref="deviceChart"/></div>
+                        </div></div>
+                    </div>
+                </div>
+
+                <!-- ═══ 요일 + 시간대 (위치 교체) ═══ -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-5">
+                        <div class="card h-100"><div class="card-body">
+                            <h5 class="fw-bold mb-2">요일별 접속 분포</h5>
+                            <div style="position:relative;height:250px;"><canvas t-ref="dowChart"/></div>
+                        </div></div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="card h-100"><div class="card-body">
+                            <h5 class="fw-bold mb-2">시간대별 접속 분포</h5>
+                            <div style="position:relative;height:250px;"><canvas t-ref="hourChart"/></div>
+                        </div></div>
+                    </div>
+                </div>
+
+                <!-- ═══ 사용자별 접속 현황(좌) + 미접속·로그인실패(우 세로 스택) ═══ -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-8">
+                        <div class="card h-100"><div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="fw-bold mb-0">사용자별 접속 현황</h5>
+                                </div>
+                                <a href="#" class="small text-nowrap" style="color:#714b67;" t-on-click.prevent="openList">전체 보기 →</a>
+                            </div>
+                            <!-- 절대배치 스크롤: 왼쪽 카드가 오른쪽(로그인실패) 높이를 넘지 않고 내부 스크롤 -->
+                            <div class="mt-2" style="position:relative; flex:1 1 0; min-height:0;">
+                            <div class="table-responsive" style="position:absolute; inset:0; overflow-y:auto;">
+                                <table class="table table-hover align-middle mb-0" style="font-size:13px;">
+                                    <thead class="table-light" style="position:sticky;top:0;z-index:1;">
+                                        <tr>
+                                            <th style="width:36%;">사용자</th>
+                                            <th class="text-end">접속 횟수</th>
+                                            <th>최근 접속</th>
+                                            <th>주 사용기기</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-if="state.data.users.length === 0">
+                                            <td colspan="4" class="text-center text-muted py-4">접속 내역이 없습니다.</td>
+                                        </tr>
+                                        <t t-foreach="state.data.users" t-as="u" t-key="u_index">
+                                            <tr>
+                                                <td>
+                                                    <span class="avatar"><t t-esc="initial(u.name)"/></span>
+                                                    <t t-esc="u.name"/>
+                                                    <span t-if="u.dept" class="text-muted small"> · <t t-esc="u.dept"/></span>
+                                                </td>
+                                                <td class="text-end fw-bold"><t t-esc="u.count"/></td>
+                                                <td><t t-esc="u.last_label"/></td>
+                                                <td>
+                                                    <span class="dev-chip" t-if="u.device_label">
+                                                        <t t-esc="u.device_label"/>
+                                                    </span>
+                                                    <span t-else="" class="text-muted">-</span>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                            </div>
+                        </div></div>
+                    </div>
+
+                    <!-- 우: 미접속 사용자 + 최근 로그인 실패 (세로 스택) -->
+                    <div class="col-md-4">
+                        <div class="card mb-3"><div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="fw-bold mb-0">미접속 사용자</h5>
+                                </div>
+                                <span t-if="state.data.inactive_count > 0" class="badge-soft b-low"><t t-esc="state.data.inactive_count"/>명</span>
+                            </div>
+                            <div class="table-responsive mt-2" style="max-height:235px; overflow-y:auto;">
+                                <table class="table table-hover align-middle mb-0" style="font-size:13px;">
+                                    <thead class="table-light" style="position:sticky;top:0;z-index:1;">
+                                        <tr>
+                                            <th>사용자</th>
+                                            <th class="text-end">마지막 접속</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-if="state.data.inactive.length === 0">
+                                            <td colspan="2" class="text-center text-muted py-4">모든 사용자가 최근 접속했습니다.</td>
+                                        </tr>
+                                        <t t-foreach="state.data.inactive" t-as="iu" t-key="iu_index">
+                                            <tr>
+                                                <td>
+                                                    <span class="avatar" style="background:#fdecec;color:#c0392b;"><t t-esc="initial(iu.name)"/></span>
+                                                    <t t-esc="iu.name"/>
+                                                    <span t-if="iu.dept" class="text-muted small"> · <t t-esc="iu.dept"/></span>
+                                                </td>
+                                                <td class="text-end"><span class="badge-soft b-idle"><t t-esc="iu.last_label"/></span></td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div></div>
+
+                        <div class="card"><div class="card-body">
+                            <h5 class="fw-bold mb-0">최근 로그인 실패</h5>
+                            <div t-if="state.data.recent_failed.length === 0" class="text-center py-4">
+                                <div style="width:44px;height:44px;border-radius:50%;background:#e6f6ec;color:#1b8a4b;display:inline-flex;align-items:center;justify-content:center;font-size:18px;">
+                                    <i class="fa fa-check"/>
+                                </div>
+                                <div class="fw-bold mt-2">로그인 실패 기록이 없습니다</div>
+                                <div class="text-muted small"><t t-esc="windowLabel"/> 동안 비정상 인증 시도가 없었습니다</div>
+                            </div>
+                            <div t-else="" class="table-responsive mt-2" style="min-height:190px; max-height:260px; overflow-y:auto;">
+                                <table class="table table-hover align-middle mb-0" style="font-size:13px;">
+                                    <thead class="table-light" style="position:sticky;top:0;z-index:1;">
+                                        <tr>
+                                            <th style="width:24%;">시각</th>
+                                            <th>시도한 로그인</th>
+                                            <th>IP</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="state.data.recent_failed" t-as="f" t-key="f_index">
+                                            <tr>
+                                                <td><t t-esc="f.time_label"/></td>
+                                                <td class="fw-semibold text-danger"><t t-esc="f.login"/></td>
+                                                <td class="text-muted"><t t-esc="f.ip"/></td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div></div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

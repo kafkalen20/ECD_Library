@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 검색뷰: 표준 컬럼/필터 정리 + 고객센터 커스텀 그룹바이 -->
+    <record id="helpdesk_tickets_view_search_base" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.search.base.inherit.edb_helpdesk</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_tickets_view_search_base"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='stage_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="assignee"/>
+            </xpath>
+            <xpath expr="//filter[@name='assignee']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='partner']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='created_by']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='created_by']" position="after">
+                <filter string="요청자" name="requester_id" context="{'group_by': 'requester_id'}"/>
+                <filter string="요청일자" name="request_date" context="{'group_by': 'request_date'}"/>
+                <filter string="담당자" name="assignees" context="{'group_by': 'assignee'}"/>
+                <filter string="완료일자" name="completion_date" context="{'group_by': 'completion_date'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 목록뷰 (Odoo 18+ 은 list 태그) -->
+    <record id="helpdesk_tickets_view_tree" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.list.inherit.edb_helpdesk</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_tickets_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="default_order">ticket_no desc</attribute>
+            </xpath>
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='activity_ids']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='sla_deadline']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='ticket_ref']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='ticket_ref']" position="before">
+                <field name="ticket_no" string="ID" readonly="1" optional="show"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="requester_id"/>
+                <field name="request_date"/>
+                <field name="assignee"/>
+                <field name="expected_completion_date"/>
+                <field name="completion_date"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 폼뷰 -->
+    <record id="helpdesk_ticket_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.inherit.edb_helpdesk</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='stage_id']" position="attributes">
+                <attribute name="widget">statusbar</attribute>
+            </xpath>
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//label[@for='partner_phone']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//div[hasclass('o_row_readonly')]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='email_cc']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='email_cc']" position="after">
+                <field name="requester_id" options='{"no_open": True, "no_create": True}'/>
+                <field name="request_date"/>
+                <field name="assignee"/>
+                <field name="expected_completion_date"/>
+                <field name="completion_date"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 타임시트 탭: 담당자 컬럼 -->
+    <record id="helpdesk_ticket_view_form_inherit_helpdesk_timesheet" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.inherit.timesheet.inherit.edb_helpdesk</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_timesheet.helpdesk_ticket_view_form_inherit_helpdesk_timesheet"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='timesheet_ids']/list/field[@name='employee_id']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='timesheet_ids']/list/field[@name='employee_id']" position="after">
+                <field name="assignee"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

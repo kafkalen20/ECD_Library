@@ -1,0 +1,92 @@
+/* ============================================================
+   EDB 상태 색상 시스템 — 12색 공통 정의 (단일 정의처)
+   ------------------------------------------------------------
+   색을 바꾸려면 이 파일만 수정하면 이 색을 쓰는 모든 배지/라벨에
+   일괄 반영된다. (에코두비즈 공용 · 도메인 중립)
+
+   [사용법] 색상마다 배경+글자색이 한 클래스에 함께 정의돼 있으므로,
+   다른 곳에서는 색을 개별로 지정하지 말고 색상 클래스만 붙이면 된다.
+     strong  : <span class="badge edb-c-blue">라벨</span>
+     weak    : <span class="badge edb-c-blue-weak">라벨</span>
+     outline : <span class="badge edb-c-blue-outline">라벨</span>
+   ============================================================ */
+:root {
+    /* 1. 자주 (시스템) */
+    --edb-c-aubergine:          #714B67;  --edb-c-aubergine-on: #ffffff;
+    --edb-c-aubergine-weak:     #eee9ed;  --edb-c-aubergine-emphasis: #714b67;  --edb-c-aubergine-line: #cdc0ca;
+    /* 2. 청록 (시스템) */
+    --edb-c-teal:               #17a2b8;  --edb-c-teal-on: #ffffff;
+    --edb-c-teal-weak:          #e3f4f6;  --edb-c-teal-emphasis: #117b8c;  --edb-c-teal-line: #aedee6;
+    /* 3. 초록 (시스템) */
+    --edb-c-green:              #28a745;  --edb-c-green-on: #ffffff;
+    --edb-c-green-weak:         #e5f4e9;  --edb-c-green-emphasis: #208637;  --edb-c-green-line: #b4e0be;
+    /* 4. 노랑 (시스템) */
+    --edb-c-yellow:             #ffac00;  --edb-c-yellow-on: #000000;
+    --edb-c-yellow-weak:        #fff5e0;  --edb-c-yellow-emphasis: #996700;  --edb-c-yellow-line: #ffe2a6;
+    /* 5. 빨강 (시스템) */
+    --edb-c-red:                #dc3545;  --edb-c-red-on: #ffffff;
+    --edb-c-red-weak:           #fbe7e9;  --edb-c-red-emphasis: #d33342;  --edb-c-red-line: #f3b8be;
+    /* 6. 회색 (시스템) */
+    --edb-c-gray:               #6c757d;  --edb-c-gray-on: #ffffff;
+    --edb-c-gray-weak:          #edeeef;  --edb-c-gray-emphasis: #6c757d;  --edb-c-gray-line: #cccfd2;
+    /* 7. 블루 (커스텀) */
+    --edb-c-blue:               #2563eb;  --edb-c-blue-on: #ffffff;
+    --edb-c-blue-weak:          #e5ecfd;  --edb-c-blue-emphasis: #2563eb;  --edb-c-blue-line: #b3c8f8;
+    /* 8. 네이비 (커스텀) */
+    --edb-c-navy:               #172554;  --edb-c-navy-on: #ffffff;
+    --edb-c-navy-weak:          #e3e3ea;  --edb-c-navy-emphasis: #172554;  --edb-c-navy-line: #aeb3c3;
+    /* 9. 바이올렛 (커스텀) */
+    --edb-c-violet:             #7c3aed;  --edb-c-violet-on: #ffffff;
+    --edb-c-violet-weak:        #efe7fd;  --edb-c-violet-emphasis: #7c3aed;  --edb-c-violet-line: #d1baf9;
+    /* 10. 오렌지 (커스텀) */
+    --edb-c-orange:             #f97316;  --edb-c-orange-on: #ffffff;
+    --edb-c-orange-weak:        #feeee3;  --edb-c-orange-emphasis: #bd5711;  --edb-c-orange-line: #fdcead;
+    /* 11. 핑크코랄 (커스텀) */
+    --edb-c-coral:              #fb7185;  --edb-c-coral-on: #ffffff;
+    --edb-c-coral-weak:         #ffeef0;  --edb-c-coral-emphasis: #b55160;  --edb-c-coral-line: #fecdd4;
+    /* 12. 라이트그레이 (커스텀) */
+    --edb-c-lightgray:          #e5e7eb;  --edb-c-lightgray-on: #000000;
+    --edb-c-lightgray-weak:     #fcfcfd;  --edb-c-lightgray-emphasis: #6e6f71;  --edb-c-lightgray-line: #f6f7f8;
+}
+
+/* ── STRONG: 배경 + 글자색 함께 정의 ── */
+.edb-c-aubergine { background-color: var(--edb-c-aubergine); color: var(--edb-c-aubergine-on); }
+.edb-c-teal      { background-color: var(--edb-c-teal);      color: var(--edb-c-teal-on); }
+.edb-c-green     { background-color: var(--edb-c-green);     color: var(--edb-c-green-on); }
+.edb-c-yellow    { background-color: var(--edb-c-yellow);    color: var(--edb-c-yellow-on); }
+.edb-c-red       { background-color: var(--edb-c-red);       color: var(--edb-c-red-on); }
+.edb-c-gray      { background-color: var(--edb-c-gray);      color: var(--edb-c-gray-on); }
+.edb-c-blue      { background-color: var(--edb-c-blue);      color: var(--edb-c-blue-on); }
+.edb-c-navy      { background-color: var(--edb-c-navy);      color: var(--edb-c-navy-on); }
+.edb-c-violet    { background-color: var(--edb-c-violet);    color: var(--edb-c-violet-on); }
+.edb-c-orange    { background-color: var(--edb-c-orange);    color: var(--edb-c-orange-on); }
+.edb-c-coral     { background-color: var(--edb-c-coral);     color: var(--edb-c-coral-on); }
+.edb-c-lightgray { background-color: var(--edb-c-lightgray); color: var(--edb-c-lightgray-on); }
+
+/* ── WEAK: 연한 배경 + 진한 글자 ── */
+.edb-c-aubergine-weak { background-color: var(--edb-c-aubergine-weak); color: var(--edb-c-aubergine-emphasis); }
+.edb-c-teal-weak      { background-color: var(--edb-c-teal-weak);      color: var(--edb-c-teal-emphasis); }
+.edb-c-green-weak     { background-color: var(--edb-c-green-weak);     color: var(--edb-c-green-emphasis); }
+.edb-c-yellow-weak    { background-color: var(--edb-c-yellow-weak);    color: var(--edb-c-yellow-emphasis); }
+.edb-c-red-weak       { background-color: var(--edb-c-red-weak);       color: var(--edb-c-red-emphasis); }
+.edb-c-gray-weak      { background-color: var(--edb-c-gray-weak);      color: var(--edb-c-gray-emphasis); }
+.edb-c-blue-weak      { background-color: var(--edb-c-blue-weak);      color: var(--edb-c-blue-emphasis); }
+.edb-c-navy-weak      { background-color: var(--edb-c-navy-weak);      color: var(--edb-c-navy-emphasis); }
+.edb-c-violet-weak    { background-color: var(--edb-c-violet-weak);    color: var(--edb-c-violet-emphasis); }
+.edb-c-orange-weak    { background-color: var(--edb-c-orange-weak);    color: var(--edb-c-orange-emphasis); }
+.edb-c-coral-weak     { background-color: var(--edb-c-coral-weak);     color: var(--edb-c-coral-emphasis); }
+.edb-c-lightgray-weak { background-color: var(--edb-c-lightgray-weak); color: var(--edb-c-lightgray-emphasis); }
+
+/* ── OUTLINE: 흰 배경 + 색 테두리 + 진한 글자 ── */
+.edb-c-aubergine-outline { background-color:#fff; border:1px solid var(--edb-c-aubergine-line); color: var(--edb-c-aubergine-emphasis); }
+.edb-c-teal-outline      { background-color:#fff; border:1px solid var(--edb-c-teal-line);      color: var(--edb-c-teal-emphasis); }
+.edb-c-green-outline     { background-color:#fff; border:1px solid var(--edb-c-green-line);     color: var(--edb-c-green-emphasis); }
+.edb-c-yellow-outline    { background-color:#fff; border:1px solid var(--edb-c-yellow-line);    color: var(--edb-c-yellow-emphasis); }
+.edb-c-red-outline       { background-color:#fff; border:1px solid var(--edb-c-red-line);       color: var(--edb-c-red-emphasis); }
+.edb-c-gray-outline      { background-color:#fff; border:1px solid var(--edb-c-gray-line);      color: var(--edb-c-gray-emphasis); }
+.edb-c-blue-outline      { background-color:#fff; border:1px solid var(--edb-c-blue-line);      color: var(--edb-c-blue-emphasis); }
+.edb-c-navy-outline      { background-color:#fff; border:1px solid var(--edb-c-navy-line);      color: var(--edb-c-navy-emphasis); }
+.edb-c-violet-outline    { background-color:#fff; border:1px solid var(--edb-c-violet-line);    color: var(--edb-c-violet-emphasis); }
+.edb-c-orange-outline    { background-color:#fff; border:1px solid var(--edb-c-orange-line);    color: var(--edb-c-orange-emphasis); }
+.edb-c-coral-outline     { background-color:#fff; border:1px solid var(--edb-c-coral-line);     color: var(--edb-c-coral-emphasis); }
+.edb-c-lightgray-outline { background-color:#fff; border:1px solid var(--edb-c-lightgray-line); color: var(--edb-c-lightgray-emphasis); }

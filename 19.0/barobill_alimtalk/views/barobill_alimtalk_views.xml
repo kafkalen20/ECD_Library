@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="barobill_alimtalk_view_form" model="ir.ui.view">
+        <field name="name">barobill.alimtalk.form</field>
+        <field name="model">barobill.alimtalk</field>
+        <field name="arch" type="xml">
+            <form string="알림톡 발송">
+                <header>
+                    <button name="action_send_alimtalk" type="object" string="알림톡 발송"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_reset" type="object" string="초기화"
+                            class="btn-secondary" invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,failed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="발송 정보">
+                            <field name="to_number"/>
+                            <field name="to_name"/>
+                        </group>
+                        <group string="템플릿 / 결과">
+                            <field name="template_name" readonly="1"/>
+                            <field name="title" readonly="1"/>
+                            <field name="send_date"/>
+                            <field name="send_key"/>
+                        </group>
+                    </group>
+                    <group string="메시지 내용 (템플릿 확정본 — 수정 불가)">
+                        <field name="message" nolabel="1" readonly="1"/>
+                    </group>
+                    <group string="오류 메시지">
+                        <field name="error_message" nolabel="1" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- 알림톡은 고정 템플릿 기반이므로 자유작성 '알림톡 발송' 메뉴/액션은 제공하지 않음.
+         이 form 뷰는 발송 결과의 [재발송] 시 초안 검토·발송 용도로만 사용된다. -->
+</odoo>

@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_global_search_config_user_read,global.search.config.user.read,model_global_search_config,base.group_user,1,0,0,0
+access_global_search_config_system,global.search.config.system,model_global_search_config,base.group_system,1,1,1,1
+access_global_search_config_line_user_read,global.search.config.line.user.read,model_global_search_config_line,base.group_user,1,0,0,0
+access_global_search_config_line_system,global.search.config.line.system,model_global_search_config_line,base.group_system,1,1,1,1

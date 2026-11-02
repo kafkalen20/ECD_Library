@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 바로빌 앱(barobill 기반 모듈)에 현금영수증 설정 블록을 추가. -->
+    <record id="res_config_settings_view_form_barobill_cash_receipt" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.barobill.cash_receipt</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="barobill.res_config_settings_view_form_barobill"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='barobill']" position="inside">
+                <block title="현금영수증" name="barobill_cash_receipt_block">
+                    <setting id="barobill_cash_receipt_server_test_setting" string="테스트 서버 URL">
+                        <field name="barobill_cash_receipt_server_test" readonly="1"/>
+                    </setting>
+                    <setting id="barobill_cash_receipt_server_prod_setting" string="운영 서버 URL">
+                        <field name="barobill_cash_receipt_server_prod" readonly="1"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="global_search_config_list_view" model="ir.ui.view">
+        <field name="name">global.search.config.list</field>
+        <field name="model">global.search.config</field>
+        <field name="arch" type="xml">
+            <list string="통합검색 설정">
+                <field name="sequence" widget="handle"/>
+                <field name="model_id"/>
+                <field name="name" placeholder="비우면 모델 이름 사용"/>
+                <field name="result_limit"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="global_search_config_form_view" model="ir.ui.view">
+        <field name="name">global.search.config.form</field>
+        <field name="model">global.search.config</field>
+        <field name="arch" type="xml">
+            <form string="통합검색 설정">
+                <header>
+                    <button name="action_import_all_fields" type="object"
+                            string="필드 가져오기" class="btn-primary"
+                            help="대상 모델의 모든 검색 가능 필드를 추가합니다. 불필요한 필드는 이후 삭제하세요."/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="model_id"/>
+                            <field name="name" placeholder="비우면 모델 이름 사용"/>
+                        </group>
+                        <group>
+                            <field name="title_path"
+                                   placeholder="라인 모델 예: order_id.name"/>
+                            <field name="result_limit"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <separator string="검색 대상 필드"/>
+                    <field name="line_ids">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="model_id" column_invisible="1"/>
+                            <field name="field_id" string="필드"
+                                   options="{'no_create': True}"
+                                   placeholder="필드 선택"/>
+                            <field name="field_relation" column_invisible="1"/>
+                            <field name="sub_field_ids" string="하위 필드"
+                                   widget="many2many_tags"
+                                   options="{'no_create': True}"
+                                   readonly="not field_relation"
+                                   placeholder="관계 필드에서 검색할 하위 필드 선택"/>
+                            <field name="field_name" string="필드명" readonly="1" optional="hide"/>
+                            <field name="field_label" string="필드 라벨" readonly="1"/>
+                            <field name="field_ttype" string="필드 유형" readonly="1"/>
+                            <field name="field_required" string="요청함" readonly="1" optional="show"/>
+                            <field name="field_readonly" string="읽기 전용" readonly="1" optional="show"/>
+                            <field name="field_index" string="색인화" readonly="1" optional="show"/>
+                            <field name="field_state" string="유형" readonly="1" optional="show"/>
+                        </list>
+                    </field>
+                    <div class="text-muted">
+                        <p>대상 모델의 필드를 목록에서 선택해 추가하세요. 관계 필드(예: 거래처)는 표시명으로 검색됩니다.</p>
+                        <p>헤더의 <b>필드 가져오기</b>로 모든 필드를 한 번에 추가한 뒤 불필요한 필드를 삭제할 수 있습니다.</p>
+                        <p>검색은 각 모델의 접근권한을 존중하여 사용자가 볼 수 있는 레코드만 표시합니다.</p>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="global_search_config_action" model="ir.actions.act_window">
+        <field name="name">통합검색 설정</field>
+        <field name="res_model">global.search.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">통합검색 대상 모델을 추가하세요</p>
+            <p>상단 검색창에서 여러 모델을 여러 필드로 동시에 검색할 수 있습니다.</p>
+        </field>
+    </record>
+
+    <!-- 메뉴: 설정 > 기술 > 사용자 인터페이스 > 통합검색 (관리자/개발자모드) -->
+    <menuitem id="menu_global_search_config"
+              name="통합검색"
+              parent="base.next_id_2"
+              action="global_search_config_action"
+              groups="base.group_no_one"
+              sequence="90"/>
+
+</odoo>

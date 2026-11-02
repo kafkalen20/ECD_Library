@@ -1,0 +1,14 @@
+/* ============================================================ */
+/* 전역 — 모든 백엔드 리스트뷰 컬럼 세로 구분선                  */
+/* ============================================================ */
+.o_list_renderer table.o_list_table > thead > tr > th,
+.o_list_renderer table.o_list_table > tbody > tr > td {
+    border-right: 1px solid #e0e0e0;
+}
+/* 첫 컬럼(레코드 선택 체크박스)·맨 끝 컬럼(옵션 토글)은 구분선 제외 */
+.o_list_renderer table.o_list_table > thead > tr > th.o_list_record_selector,
+.o_list_renderer table.o_list_table > tbody > tr > td.o_list_record_selector,
+.o_list_renderer table.o_list_table > thead > tr > th:last-child,
+.o_list_renderer table.o_list_table > tbody > tr > td:last-child {
+    border-right: 0;
+}

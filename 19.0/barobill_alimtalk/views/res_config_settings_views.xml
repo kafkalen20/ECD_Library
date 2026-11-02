@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 바로빌 앱(barobill 기반 모듈)에 알림톡 발송 설정 블록을 추가. -->
+    <record id="res_config_settings_view_form_barobill_alimtalk" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.barobill.alimtalk</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="barobill.res_config_settings_view_form_barobill"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='barobill']" position="inside">
+                <block title="알림톡" name="barobill_alimtalk_block">
+                    <setting id="barobill_alimtalk_server_test_setting" string="테스트 서버 URL">
+                        <field name="barobill_alimtalk_server_test" readonly="1"/>
+                    </setting>
+                    <setting id="barobill_alimtalk_server_prod_setting" string="운영 서버 URL">
+                        <field name="barobill_alimtalk_server_prod" readonly="1"/>
+                    </setting>
+                    <setting id="barobill_alimtalk_yellowid_setting" string="발신프로필 (YellowId)"
+                             help="카카오 비즈니스 채널 발신프로필 키">
+                        <field name="barobill_alimtalk_yellowid"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

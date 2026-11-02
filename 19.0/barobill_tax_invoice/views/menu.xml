@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ══ 세금계산서 ══ (barobill 루트 아래) -->
+    <menuitem id="barobill_tax_invoice_category"
+              name="세금계산서"
+              parent="barobill.barobill_menu_root"
+              sequence="30"/>
+    <menuitem id="barobill_tax_invoice_menu"
+              name="작성"
+              parent="barobill_tax_invoice_category"
+              action="barobill_tax_invoice_action"
+              sequence="10"/>
+    <menuitem id="barobill_tax_invoice_result_menu"
+              name="결과"
+              parent="barobill_tax_invoice_category"
+              action="barobill_tax_invoice_result_action"
+              sequence="20"/>
+</odoo>

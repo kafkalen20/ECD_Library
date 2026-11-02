@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 공통(edb_common)의 Ecodoobiz 앱 뷰를 상속해 그 안에 고객센터 블록을 추가 -->
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.edb.helpdesk</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="edb_common.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='edb_common']" position="inside">
+                <block title="고객센터" name="edb_helpdesk_settings">
+                    <setting id="edb_helpdesk_notify_email_setting"
+                             string="담당자 이메일"
+                             help="고객센터 티켓 단계가 변경되면 이 주소로 알림 메일이 발송됩니다. 비워두면 표준 helpdesk 알림 동작을 유지합니다.">
+                        <field name="edb_helpdesk_notify_email" placeholder="예: helpdesk@ecodoobiz.com"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

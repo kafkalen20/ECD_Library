@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_edb_device_access_user,edb.device.access user,model_edb_device_access,base.group_user,1,0,0,0
+access_edb_device_access_system,edb.device.access system,model_edb_device_access,base.group_system,1,1,1,1

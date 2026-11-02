@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ══ 현금영수증 ══ (barobill 루트 아래) -->
+    <menuitem id="barobill_cash_receipt_category"
+              name="현금영수증"
+              parent="barobill.barobill_menu_root"
+              sequence="40"/>
+    <menuitem id="barobill_cash_receipt_menu"
+              name="작성"
+              parent="barobill_cash_receipt_category"
+              action="barobill_cash_receipt_action"
+              sequence="10"/>
+    <menuitem id="barobill_cash_receipt_result_menu"
+              name="결과"
+              parent="barobill_cash_receipt_category"
+              action="barobill_cash_receipt_result_action"
+              sequence="20"/>
+</odoo>

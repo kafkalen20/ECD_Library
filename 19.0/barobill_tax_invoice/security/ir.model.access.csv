@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_barobill_tax_invoice,barobill.tax_invoice,model_barobill_tax_invoice,base.group_user,1,1,1,1
+access_barobill_tax_invoice_line,barobill.tax_invoice.line,model_barobill_tax_invoice_line,base.group_user,1,1,1,1
+access_barobill_tax_invoice_result,barobill.tax_invoice.result,model_barobill_tax_invoice_result,base.group_user,1,0,1,0

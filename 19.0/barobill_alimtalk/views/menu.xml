@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ══ 알림톡 ══ (barobill 루트 아래, 고정 템플릿 기반 자동발송 — 수동 전송 메뉴 없음) -->
+    <menuitem id="barobill_alimtalk_category"
+              name="알림톡"
+              parent="barobill.barobill_menu_root"
+              sequence="30"/>
+    <menuitem id="barobill_alimtalk_result_menu"
+              name="결과"
+              parent="barobill_alimtalk_category"
+              action="barobill_alimtalk_result_action"
+              sequence="20"/>
+</odoo>

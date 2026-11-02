@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="barobill_sms_view_form" model="ir.ui.view">
+        <field name="name">barobill.sms.form</field>
+        <field name="model">barobill.sms</field>
+        <field name="arch" type="xml">
+            <form string="SMS 발송">
+                <header>
+                    <button name="action_send_sms" type="object" string="메시지 발송"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_reset" type="object" string="초기화"
+                            class="btn-secondary" invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,failed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="발송 정보">
+                            <field name="from_number" invisible="1"/>
+                            <field name="to_number"/>
+                            <field name="to_name"/>
+                        </group>
+                        <group string="발송 결과">
+                            <field name="send_date"/>
+                            <field name="send_key"/>
+                        </group>
+                    </group>
+                    <group string="메시지 내용">
+                        <field name="contents" nolabel="1" placeholder="메시지 내용을 입력하세요..."/>
+                    </group>
+                    <group string="오류 메시지">
+                        <field name="error_message" nolabel="1" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="barobill_sms_view_list" model="ir.ui.view">
+        <field name="name">barobill.sms.list</field>
+        <field name="model">barobill.sms</field>
+        <field name="arch" type="xml">
+            <list string="SMS 발송 목록">
+                <field name="to_number"/>
+                <field name="to_name"/>
+                <field name="send_date"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'sent'"
+                       decoration-danger="state == 'failed'"
+                       decoration-info="state == 'draft'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="barobill_sms_action" model="ir.actions.act_window">
+        <field name="name">SMS 발송</field>
+        <field name="res_model">barobill.sms</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'default_contents': '안녕하세요.\n테스트 메시지입니다.\n감사합니다.'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                SMS 발송 테스트를 시작하세요
+            </p>
+            <p>
+                바로빌 API를 통한 메시지 발송을 테스트할 수 있습니다.
+            </p>
+        </field>
+    </record>
+</odoo>

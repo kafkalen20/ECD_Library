@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View -->
+    <record id="barobill_tax_invoice_result_view_list" model="ir.ui.view">
+        <field name="name">barobill.tax_invoice.result.list</field>
+        <field name="model">barobill.tax_invoice.result</field>
+        <field name="arch" type="xml">
+            <list string="세금계산서 처리 결과" create="0" edit="0">
+                <field name="create_date"/>
+                <field name="name"/>
+                <field name="action"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == '성공'"
+                       decoration-danger="state == '실패'"/>
+                <field name="management_number" optional="show"/>
+                <field name="approval_number" optional="hide"/>
+                <field name="message"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="barobill_tax_invoice_result_view_form" model="ir.ui.view">
+        <field name="name">barobill.tax_invoice.result.form</field>
+        <field name="model">barobill.tax_invoice.result</field>
+        <field name="arch" type="xml">
+            <form string="세금계산서 처리 결과" create="0" edit="0">
+                <sheet>
+                    <group>
+                        <group string="처리 정보">
+                            <field name="name"/>
+                            <field name="action"/>
+                            <field name="create_date"/>
+                            <field name="state" widget="badge"
+                                   decoration-success="state == '성공'"
+                                   decoration-danger="state == '실패'"/>
+                        </group>
+                        <group string="번호">
+                            <field name="management_number"/>
+                            <field name="approval_number"/>
+                        </group>
+                    </group>
+                    <group string="메시지" invisible="not message">
+                        <field name="message" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="barobill_tax_invoice_result_action" model="ir.actions.act_window">
+        <field name="name">처리 결과</field>
+        <field name="res_model">barobill.tax_invoice.result</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                세금계산서 처리 기록이 없습니다
+            </p>
+            <p>
+                세금계산서 저장/발급/취소 시 자동으로 기록이 저장됩니다.
+            </p>
+        </field>
+    </record>
+</odoo>

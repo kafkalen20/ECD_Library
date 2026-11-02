@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="global_search.GlobalSearch">
+        <div class="o_global_search" t-ref="root">
+            <div class="o_global_search_box">
+                <i class="fa fa-search o_global_search_icon"/>
+                <input type="text" class="o_global_search_input"
+                       placeholder=""
+                       autocomplete="off"
+                       t-att-value="state.term"
+                       t-on-input="onInput"
+                       t-on-focus="onFocus"
+                       t-on-keydown="onKeydown"/>
+            </div>
+
+            <div class="o_global_search_panel" t-if="state.open">
+                <t t-if="state.loading">
+                    <div class="o_global_search_msg">
+                        <i class="fa fa-spinner fa-spin me-1"/>검색 중...
+                    </div>
+                </t>
+                <t t-elif="showNoResults">
+                    <div class="o_global_search_msg">검색 결과가 없습니다.</div>
+                </t>
+                <t t-else="">
+                    <t t-foreach="state.groups" t-as="group" t-key="group.model">
+                        <div class="o_global_search_group_label">
+                            <span t-esc="group.label"/>
+                            <button type="button" class="o_global_search_seeall"
+                                    title="전체보기"
+                                    t-on-click="() => this.openAll(group)">
+                                <i class="fa fa-chevron-right"/>
+                            </button>
+                        </div>
+                        <t t-foreach="group.records" t-as="rec" t-key="rec.id">
+                            <div class="o_global_search_item"
+                                 t-att-class="{ active: state.activeIndex === rec._i }"
+                                 t-on-click="() => this.openRecord(rec.open_model or group.model, rec.open_id or rec.id)">
+                                <div class="o_global_search_item_name">
+                                    <t t-foreach="highlightParts(rec.name)" t-as="p" t-key="p_index">
+                                        <mark t-if="p.hit" class="o_global_search_hit" t-esc="p.text"/>
+                                        <t t-else="" t-esc="p.text"/>
+                                    </t>
+                                </div>
+                                <div class="o_global_search_item_sub" t-if="rec.subtitle">
+                                    <t t-foreach="highlightParts(rec.subtitle)" t-as="p" t-key="p_index">
+                                        <mark t-if="p.hit" class="o_global_search_hit" t-esc="p.text"/>
+                                        <t t-else="" t-esc="p.text"/>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+                    </t>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

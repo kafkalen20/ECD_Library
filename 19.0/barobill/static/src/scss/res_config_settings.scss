@@ -1,0 +1,13 @@
+// 바로빌 설정 — 읽기전용(고정값) 필드 라벨을 일반 라벨과 동일하게 진하게 표시.
+// 코어(form_controller.scss)는 readonly 라벨에 opacity:0.66 + normal weight 를 적용해
+// '인증키 / 서버 URL' 등이 흐리게 보인다. 바로빌 설정 앱 내에서만 원복.
+//
+// ⚠ 코어 SCSS 변수($font-weight-bold 등)는 참조하지 않는다. 이 파일이 web.assets_web
+//    번들에서 변수 정의 파일보다 먼저 컴파일돼 "Undefined variable" 로 번들 전체가
+//    깨진다. Odoo 의 $font-weight-bold(=$o-font-weight-medium)=500 을 리터럴로 사용.
+.app_settings_block[data-key="barobill"] {
+    .o_setting_right_pane .o_form_label.o_form_label_readonly {
+        opacity: 1;
+        font-weight: 500;
+    }
+}

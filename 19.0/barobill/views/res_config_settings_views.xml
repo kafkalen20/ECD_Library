@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 바로빌 공통 설정 — 공통 계정(인증) · 공통 서버 · 포인트 · 발송 테스트.
+         채널별(SMS/FAX/알림톡) 발송 설정 블록은 각 채널 모듈이 이 앱에 추가한다. -->
+    <record id="res_config_settings_view_form_barobill" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.barobill</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="바로빌" string="바로빌" name="barobill"
+                     logo="/barobill/static/description/icon.png" groups="base.group_system">
+
+                    <block title="공통 설정" name="barobill_common_block">
+                        <setting id="barobill_mode_setting" string="활성 환경">
+                            <field name="barobill_mode" widget="radio" options="{'horizontal': true}"/>
+                        </setting>
+                        <setting id="barobill_certkey_setting" string="연동인증키">
+                            <field name="barobill_certkey" password="True" readonly="1"/>
+                        </setting>
+                        <setting id="barobill_corpnum_setting" string="사업자등록번호"
+                                 help="하이픈 없이 10자리 숫자">
+                            <field name="barobill_corpnum" readonly="1"/>
+                        </setting>
+                        <setting id="barobill_id_setting" string="바로빌 ID">
+                            <field name="barobill_id" readonly="1"/>
+                        </setting>
+                        <setting id="barobill_server_test_setting" string="테스트 서버 URL"
+                                 help="포인트/오류조회 등 공통 API 용 SOAP 서버">
+                            <field name="barobill_server_test" readonly="1"/>
+                        </setting>
+                        <setting id="barobill_server_prod_setting" string="운영 서버 URL"
+                                 help="포인트/오류조회 등 공통 API 용 SOAP 서버">
+                            <field name="barobill_server_prod" readonly="1"/>
+                        </setting>
+                        <setting id="barobill_point_setting" string="포인트 잔액"
+                                 help="바로빌 보유 포인트를 자동으로 조회합니다.">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label string="현재 잔액" for="barobill_point_balance" class="col-lg-3 o_light_label"/>
+                                    <field name="barobill_point_balance" readonly="1"/>
+                                </div>
+                                <div class="mt8 row">
+                                    <label string="조회 시각" for="barobill_point_checked_at" class="col-lg-3 o_light_label"/>
+                                    <field name="barobill_point_checked_at" readonly="1"/>
+                                    <button name="action_check_barobill_point_balance" type="object" class="btn-link w-auto">
+                                        <i title="지금 조회" role="img" aria-label="지금 조회" class="fa fa-fw fa-refresh"/>
+                                    </button>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>
