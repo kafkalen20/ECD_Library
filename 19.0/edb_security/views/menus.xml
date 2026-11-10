@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_root"
+              name="보안 모니터링"
+              web_icon="edb_security,static/description/icon.png"
+              groups="edb_security.group_security_monitor"
+              sequence="95"/>
+</odoo>

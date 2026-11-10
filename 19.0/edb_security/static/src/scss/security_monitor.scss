@@ -1,0 +1,11 @@
+// 보안 모니터링 화면의 심각도 배지 (Odoo 전체 배지에는 영향 없음)
+// 색: Tailwind v3 팔레트, 바탕 200 / 글자 800, 굵게
+.o_secmon_severity .badge {
+    font-weight: 700;
+
+    // Odoo 기본 o_badge_color_N 이 !important 라 같은 방식으로 덮어쓴다
+    &.o_badge_color_1 { background-color: #fecaca !important; color: #991b1b !important; } // 치명: red
+    &.o_badge_color_2 { background-color: #fed7aa !important; color: #9a3412 !important; } // 높음: orange
+    &.o_badge_color_3 { background-color: #fef08a !important; color: #854d0e !important; } // 주의: yellow
+    &.o_badge_color_4 { background-color: #bfdbfe !important; color: #1e40af !important; } // 정보: blue
+}
