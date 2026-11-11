@@ -46,7 +46,7 @@ Respond in Korean.
 | 코딩·네이밍 규칙 | `docs/project/conventions.md` · `.claude/rules/odoo-standards.md` |
 | 요구사항 추적 | `docs/requirements/trace.md` · 다시 맞추기 `docs/guides/req-trace.md` |
 | 일 끝났을 때 갱신할 곳 | `docs/guides/task-done.md` ("○○ 끝났어" → 목록을 돌고 빠진 곳 보고) |
-| 고객사 프로젝트에 모듈 설치·갱신 | `docs/guides/deploy.md` (실행은 사람만) — [❓확인 필요: 반영 방식] |
+| 고객사 프로젝트에 모듈 적용 | `docs/guides/deploy.md` — 필요한 모듈 폴더만 고객사 레포로 복사 (실행은 사람만) |
 | 보안·마이그레이션·코딩 규칙 | `.claude/rules/*.md` (평문 — 어느 AI든 그대로 읽고 따른다) |
 
 ## Knowledge rules

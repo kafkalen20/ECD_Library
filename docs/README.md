@@ -31,7 +31,7 @@
 - [PR 작성 규칙](guides/pr-rules.md) — PR 5섹션(한글 헤더)·티켓 표기, CI 강제 (kit 동기화 — 직접 수정 금지)
 - [Git 브랜치·커밋 가이드](guides/gitflow.md) — 이 프로젝트의 브랜치 전략·커밋 규약
 - [문서 작성 절차](guides/write-doc.md) — 유형 판단→폴더·파일명→템플릿→목차→검증 (kit 동기화 — 직접 수정 금지)
-- [운영 배포 절차](guides/deploy.md) — 배포 순서·주의 (사람이 실행, 방식 확인 필요)
+- [고객사 적용 절차](guides/deploy.md) — 필요한 모듈만 고객사 레포로 복사 → 고객사 배포 절차로 반영 (사람이 실행)
 - [로컬 개발 환경](guides/dev-setup.md) — `.odoorc`·addons_path(`19.0`)·실행/테스트 명령
 - [요구 추적표 다시 맞추기](guides/req-trace.md) — 요구 번호로 커밋·PR·시험 검색 → 표 갱신 (kit 동기화 — 직접 수정 금지)
 - [완료 처리 절차](guides/task-done.md) — "끝났어" → 갱신할 곳 목록·빠진 곳 보고 (kit 동기화 — 직접 수정 금지)
