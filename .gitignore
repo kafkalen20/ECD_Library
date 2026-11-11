@@ -1,17 +1,26 @@
-# Python
+# ── 개인 설정 (팀 공유 X) ────────────────────────────
+# .claude/ 의 rules·skills·settings.json 은 팀 공유(claude-brain). 개인 설정만 제외.
+.claude/settings.local.json
+
+# ── Python ──────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *.egg-info/
+.venv/
+venv/
 
-# macOS
+# ── 환경/비밀 (값은 어떤 파일에도 커밋하지 않는다) ────
+.env
+.env.*
+*.pem
+*.key
+
+# ── OS / 편집기 ─────────────────────────────────────
 .DS_Store
-
-# IDE
+Thumbs.db
+*.swp
 .idea/
 .vscode/
 
-# Claude Code (개인 로컬 설정)
-.claude/
-
-# Odoo
+# ── Odoo ────────────────────────────────────────────
 *.log

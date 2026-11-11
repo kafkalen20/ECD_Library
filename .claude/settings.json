@@ -1,0 +1,29 @@
+{
+  "$comment": "강제할 규칙은 문장(부탁)이 아니라 설정(강제)으로. 포매터 hook은 프로젝트에 포매터가 없어 뺐음.",
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Read(*)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "$comment": "docs 저장 시 배치/파일명/표식을 즉시 검사 → 엉뚱한 폴더 저장을 그 자리에서 잡음",
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 scripts/check_docs.py"
+          }
+        ]
+      }
+    ]
+  }
+}
