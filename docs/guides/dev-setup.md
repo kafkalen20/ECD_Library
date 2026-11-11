@@ -16,7 +16,7 @@ ECD_Library 모듈을 로컬 Odoo 19 EE에서 설치·수정·시험한다.
 
 ## 절차
 1. 레포 루트에 개인용 `.odoorc` 작성 (`.git/info/exclude`로 커밋 제외됨). 확인된 값:
-   - `addons_path = <Odoo19 EE>/odoo/addons,<이 레포>/19.0` ← 루트가 아니라 **`19.0`**
+   - `addons_path = <Odoo19 EE>/odoo/addons,<이 레포>/19.0` ← 루트가 아니라 **Odoo 버전과 같은 폴더**
    - `dbfilter = ^ecd19` · `http_port = 8170`
 2. 실행·모듈 반영: `<Odoo19 EE>/odoo-bin -c .odoorc -d <db> -u <module>`
 3. 테스트: `<Odoo19 EE>/odoo-bin -c .odoorc -d <db> --test-enable --test-tags /<module> --stop-after-init`

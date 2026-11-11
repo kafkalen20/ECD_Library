@@ -7,7 +7,7 @@
 Respond in Korean.
 
 ## What this is
-에코두비즈 **사내 공용 Odoo 19 (EE) 애드온 저장소**. 바로빌 전자문서·메시징, 회사 공통 UX, 보안 감사, 고객센터, 전역 검색 모듈을 모아 여러 프로젝트에서 가져다 쓴다. (개요 → `docs/project/overview.md`)
+에코두비즈 **내부 서드파티 Odoo 모듈 저장소**. 여러 Odoo 프로젝트에 공통 적용하거나, 필요한 고객사에만 골라 설치해 바로 쓰는 모듈을 Odoo 버전별 폴더(`19.0/` …)에 모은다. 예: 문자 서비스를 쓰는 고객사에 `barobill_sms` 설치. (개요 → `docs/project/overview.md`)
 
 ## 먼저 읽을 것 (작업 시작 전)
 1. 이 파일 전체 — 특히 `숨은 결정 ★`·`사람 확인이 필요한 곳`
@@ -18,7 +18,7 @@ Respond in Korean.
 6. 바꾸려는 모듈의 `19.0/<모듈>/README.md`
 
 ## Repository Layout
-- `19.0/` — 커스텀 모듈, **평평하게(flat)** 배치 (모듈 지도 → `docs/project/modules.md`)
+- `<Odoo버전>/` — 버전별 모듈 폴더. 현재 `19.0/`만, 버전이 늘면 `20.0/` 등 추가. 각 폴더 안은 **평평하게(flat)** (모듈 지도 → `docs/project/modules.md`)
 - `README.md` — 저장소 개요·모듈 네이밍 규칙·바로빌 아키텍처 (사람용 원본)
 - `docs/` — 팀 자료실 (목차 → `docs/README.md`)
 - `scripts/` — 문서 검사(`check_docs.py`)·데이터 정정 스크립트 (문서와 섞지 않음)
@@ -29,7 +29,8 @@ Respond in Korean.
 - 자세히 → `docs/guides/dev-setup.md`
 
 ## 숨은 결정 ★ (버그 같은데 일부러 둔 것 · 고치면 조용히 깨지는 것)
-- `addons_path`에 넣을 경로는 저장소 루트가 아니라 **`19.0/`**. 그룹 하위 폴더 금지(addons_path 비재귀) → `README.md` 「모듈 네이밍·그룹 규칙」
+- `addons_path`에 넣을 경로는 저장소 루트가 아니라 **해당 Odoo 버전 폴더**(`19.0/` 등). 버전 폴더 안에 그룹 하위 폴더 금지(addons_path 비재귀) → `README.md` 「모듈 네이밍·그룹 규칙」
+- 모듈은 **고객사 프로젝트에 독립적**이어야 한다 — 특정 고객사 전용 로직·데이터를 넣지 않는다. 다른 모듈 의존은 `depends`로만.
 - 바로빌 SOAP 호출은 모델이 아니라 `controllers/`의 **일반 파이썬 클래스**(`http.Controller` 아님). 모델에 `client.service.X` 금지 → `README.md` 「바로빌 아키텍처」
 - 바로빌 인증값은 `barobill/models/common.py` 헬퍼로만 읽는다. 비밀값은 소스가 아니라 설정 화면에서 입력.
 - `barobill.*.result` 로그 모델은 append-only — 일반 사용자 권한은 읽기/생성만.
@@ -45,7 +46,7 @@ Respond in Korean.
 | 코딩·네이밍 규칙 | `docs/project/conventions.md` · `.claude/rules/odoo-standards.md` |
 | 요구사항 추적 | `docs/requirements/trace.md` · 다시 맞추기 `docs/guides/req-trace.md` |
 | 일 끝났을 때 갱신할 곳 | `docs/guides/task-done.md` ("○○ 끝났어" → 목록을 돌고 빠진 곳 보고) |
-| 배포(모듈을 쓰는 프로젝트로 반영) | `docs/guides/deploy.md` (실행은 사람만) — [❓확인 필요: 배포 방식] |
+| 고객사 프로젝트에 모듈 설치·갱신 | `docs/guides/deploy.md` (실행은 사람만) — [❓확인 필요: 반영 방식] |
 | 보안·마이그레이션·코딩 규칙 | `.claude/rules/*.md` (평문 — 어느 AI든 그대로 읽고 따른다) |
 
 ## Knowledge rules
@@ -54,6 +55,7 @@ Respond in Korean.
 - **팀 규칙은 AI 개인 메모리에 저장하지 않는다.** 이 파일이나 `docs/`에 쓴다 — 메모리는 그 PC의 그 AI만 읽는다.
 - **한 사실은 한 곳에.** 일정·범위·담당은 `docs/project/schedule-scope.md`에만, 모듈 목록·네이밍 규칙은 루트 `README.md`에만 — 다른 문서는 링크.
 - 새 모듈을 추가하면 ① 모듈 폴더 `README.md` ② 루트 `README.md` 카테고리 ③ `docs/project/modules.md` 에 한 줄.
+- 새 Odoo 버전 폴더를 열면 `docs/project/modules.md`에 버전 섹션·`.claude/rules` 경로 확인.
 - **요구 번호를 커밋·PR 제목·시험 이름에 남긴다** (형식은 `trace.md` 의 `id-format:`).
 - 절차의 본문은 `docs/guides/`에 평문으로 둔다. 도구별 스킬·명령은 그 문서를 부르기만 한다.
 
