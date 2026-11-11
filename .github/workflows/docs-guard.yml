@@ -1,0 +1,106 @@
+name: 문서 규칙 검사
+
+on:
+  # edited/ready_for_review 포함 — PR 본문(설명)을 수정하면 템플릿 검사를 재실행.
+  # (기본 트리거 opened/synchronize/reopened 만으론 본문 수정이 재검사되지 않아,
+  #  처음 잘못 올리면 고쳐도 빨간불이 안 풀리는 문제가 있었다.)
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+jobs:
+  placement:
+    name: 문서 배치·파일명 검사
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: check_docs
+        run: python3 scripts/check_docs.py
+
+  pr-body:
+    name: PR 설명 템플릿 검사 (5섹션 필수)
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.type != 'Bot'
+    steps:
+      - name: 필수 섹션 검사
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+          body = os.environ.get("PR_BODY") or ""
+          # 템플릿(.github/pull_request_template.md)의 필수 4섹션
+          required = [
+              ("무엇을 (What)",       r"##\s*무엇을"),
+              ("왜 (Why)",            r"##\s*왜"),
+              ("어떻게 (How)",        r"##\s*어떻게"),
+              ("주의·함정 (Gotchas)", r"##\s*주의"),
+          ]
+          heads = [(m.start(), m.end(), m.group()) for m in re.finditer(r"(?m)^##\s.*$", body)]
+          def section(pat):
+              for i, (s, e, t) in enumerate(heads):
+                  if re.match(pat, t):
+                      nxt = heads[i + 1][0] if i + 1 < len(heads) else len(body)
+                      return body[e:nxt].strip()
+              return None
+          errs = []
+          for label, pat in required:
+              t = section(pat)
+              if t is None:
+                  errs.append(f"'## {label}' 섹션이 없음")
+              elif not t or (t.startswith("<") and t.endswith(">")):
+                  errs.append(f"'## {label}' 섹션이 비어있거나 자리표시자(<...>) 그대로임")
+          if errs:
+              print("::error::PR 설명이 템플릿을 따르지 않았습니다 — .github/pull_request_template.md 의 섹션을 채워 주세요 (규칙: docs/guides/pr-rules.md):")
+              for e in errs:
+                  print(f"::error:: - {e}")
+              sys.exit(1)
+          print("PR 설명 필수 섹션 확인 → 통과")
+          PY
+
+  missing-doc:
+    name: 트리거 변경인데 문서 누락 검사
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 누락 검사
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          # core.quotepath=off: 한글 파일명이 "\354..." 로 따옴표·8진 이스케이프되면 ^docs/ 매칭 실패
+          # base...head(점 세 개) = 이 PR 이 바꾼 것만 (PR 뒤에 base 에 들어온 남의 변경 제외)
+          changed="$(git -c core.quotepath=off diff --name-only "$base...$head")"
+          echo "변경 파일:"; echo "$changed"
+
+          # 예외 마커는 "줄 맨 앞의 [no-doc] 사유" 만 인정 — 설명 문장·코드 표기(`...`) 안의 글자로는 안 꺼짐
+          # (PR 템플릿의 안내 줄을 그대로 둬도 통과되던 문제 방지)
+          nodoc='^[[:space:]]*([-*][[:space:]]*)?\[no-doc\][[:space:]]*[^[:space:]]'
+
+          # 예외: PR 본문 줄 맨 앞에 [no-doc] 사유가 있으면 통과
+          if printf '%s' "$PR_BODY" | sed 's/`[^`]*`//g' | grep -Eq "$nodoc"; then
+            echo "opt-out (PR 본문 [no-doc]) → 통과"; exit 0
+          fi
+
+          # 예외: 커밋 메시지에 [no-doc] 사유가 있어도 통과 (하위호환)
+          if git log --format=%B "$base..$head" | sed 's/`[^`]*`//g' | grep -Eq "$nodoc"; then
+            echo "opt-out (커밋 [no-doc]) → 통과"; exit 0
+          fi
+
+          # 트리거: 운영 정정/마이그 성격의 변경
+          if echo "$changed" | grep -Eq '^(scripts|migration)/'; then
+            if echo "$changed" | grep -Eq '^docs/(issues|decisions)/'; then
+              echo "문서 동반됨 → 통과"
+            else
+              echo "::error::scripts/ 또는 migration/ 변경인데 issues/·decisions/ 문서가 없습니다."
+              echo "::error::문서를 추가하거나(docs/ROUTING.md 참고), 정당하면 PR 본문 줄 맨 앞에 '[no-doc] 사유'를 남기세요."
+              exit 1
+            fi
+          else
+            echo "트리거 경로 변경 없음 → 통과"
+          fi

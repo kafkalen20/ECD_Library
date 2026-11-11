@@ -1,0 +1,9 @@
+#!/bin/sh
+# claude-brain: 커밋 전 문서 규칙 검사 (status 길이 상한·배치·파일명·전달 문서 '가정한 것' 등).
+# 어느 AI·사람이 커밋해도 똑같이 걸리게 git hook 으로 둔다.
+# 설치(1회): git config core.hooksPath .githooks
+#   (husky 등 기존 hook 이 있으면 그 pre-commit 에 아래 한 줄만 추가)
+python3 scripts/check_docs.py || {
+  echo "문서 규칙 위반으로 커밋을 막았습니다 — 위 ❌ 를 고친 뒤 다시 커밋하세요 (docs/ROUTING.md 3절)."
+  exit 1
+}
