@@ -1,5 +1,5 @@
 ---
-owner: parkbohee
+owner: park-jihee
 created: 2026-11-11
 updated: 2026-11-11
 ---
@@ -22,7 +22,7 @@ updated: 2026-11-11
 | `barobill_cash_receipt` | 현금영수증 저장/발급/삭제 | barobill | | LGPL-3 |
 | `edb_common` | **[베이스]** 회사 공통 — 상태 색상 토큰·리스트 UX·"Ecodoobiz" 설정 카테고리 | base, web | | OEEL-1 |
 | `edb_security` | 접속 이력(디바이스 접속·로그인 실패) 영구 감사 로그·대시보드 | edb_common, base, web | | OEEL-1 |
-| `edb_helpdesk` | 표준 Helpdesk 사내 고객센터 커스터마이징(요청자·일자·숫자 ID·단계 알림) | edb_common, helpdesk, helpdesk_timesheet | | OEEL-1 |
+| `edb_helpdesk` | 표준 Helpdesk를 고객사 공통 고객센터 방식으로 커스터마이징(요청자·일자·숫자 ID·단계 알림) | edb_common, helpdesk, helpdesk_timesheet | | OEEL-1 |
 | `global_search` | 상단 시스트레이 검색창에서 여러 모델·필드 동시 검색(대상은 화면 설정) | base, web | | LGPL-3 |
 
 ### 의존 관계 (19.0)
@@ -34,4 +34,5 @@ global_search (독립)
 ```
 
 ### 시험
-- 2026-11-11 `main` 기준 자동 테스트 파일 없음. [❓확인 필요: 테스트 작성 방침 — 모듈별 `tests/` 필수 여부]
+- 방침(2026-11-11 결정): **새 모듈·수정한 로직은 `tests/` 필수**, 기존 모듈은 손댈 때 추가.
+- 현황: `main` 기준 자동 테스트 없음. `edb_security`는 `feature/edb-security-merge` 브랜치에 `tests/` 있음.

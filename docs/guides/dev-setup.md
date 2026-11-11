@@ -1,5 +1,5 @@
 ---
-owner: parkbohee
+owner: park-jihee
 created: 2026-11-11
 updated: 2026-11-11
 ---
@@ -30,4 +30,4 @@ ECD_Library 모듈을 로컬 Odoo 19 EE에서 설치·수정·시험한다.
 ## 변경 이력
 | 날짜 | 작성자 | 내용 |
 |------|--------|------|
-| 2026-11-11 | parkbohee | claude-brain 적용 시 `.odoorc`·README 기준 최초 작성 |
+| 2026-11-11 | park-jihee | claude-brain 적용 시 `.odoorc`·README 기준 최초 작성 |

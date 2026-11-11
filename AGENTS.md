@@ -35,7 +35,8 @@ Respond in Korean.
 - 바로빌 인증값은 `barobill/models/common.py` 헬퍼로만 읽는다. 비밀값은 소스가 아니라 설정 화면에서 입력.
 - `barobill.*.result` 로그 모델은 append-only — 일반 사용자 권한은 읽기/생성만.
 - FAX FTP는 CP949 — 인코딩 불가 파일명은 UUID로 치환. 결과 이력은 상태 *전이*만 기록.
-- [❓확인 필요: 위 외에 코드만 봐선 모를 결정(예: edb_security 유휴 1시간 기준, helpdesk `ticket_no` 정수화 이유)을 ADR로 남길지]
+- `edb_helpdesk`의 `ticket_no`(정수)는 문자열 `ticket_ref` 정렬 오류(`"100"` < `"99"`) 때문에 둔 필드 — 지우고 `ticket_ref`로 정렬하지 말 것 → `docs/decisions/0002-helpdesk-ticket-no-integer-sort.md`
+- `edb_security` 재접속 기록 간격 1시간(`_REACCESS_INTERVAL_SECONDS`)은 근거 없는 임의 값 — 필요하면 조정 가능.
 
 ## 규칙·절차가 있는 곳
 | 무엇 | 위치 |
@@ -56,7 +57,9 @@ Respond in Korean.
 - **한 사실은 한 곳에.** 일정·범위·담당은 `docs/project/schedule-scope.md`에만, 모듈 목록·네이밍 규칙은 루트 `README.md`에만 — 다른 문서는 링크.
 - 새 모듈을 추가하면 ① 모듈 폴더 `README.md` ② 루트 `README.md` 카테고리 ③ `docs/project/modules.md` 에 한 줄.
 - 새 Odoo 버전 폴더를 열면 `docs/project/modules.md`에 버전 섹션·`.claude/rules` 경로 확인.
-- **요구 번호를 커밋·PR 제목·시험 이름에 남긴다** (형식은 `trace.md` 의 `id-format:`).
+- **GitHub issue 번호를 PR·커밋·시험 이름에 남긴다** (형식은 `trace.md` 의 `id-format:` — PR 본문 `Closes #N`, 커밋 본문 `#N`, 시험 `test_issueN_...`).
+- 새 모듈·수정한 로직에는 `tests/` 시험을 함께 넣는다 (기존 모듈은 손댈 때 추가).
+- 커밋은 Odoo 공식 규약 `[TAG] <모듈>: <요약>` → `docs/guides/gitflow.md`. XML ID·메서드 네이밍은 Odoo 공식 규칙 → `.claude/rules/odoo-standards.md`.
 - 절차의 본문은 `docs/guides/`에 평문으로 둔다. 도구별 스킬·명령은 그 문서를 부르기만 한다.
 
 ## 문서 기록 규칙 (언제/어디에는 docs/ROUTING.md가 유일 기준)

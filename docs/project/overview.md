@@ -1,5 +1,5 @@
 ---
-owner: parkbohee
+owner: park-jihee
 created: 2026-11-11
 updated: 2026-11-11
 ---
@@ -12,7 +12,7 @@ updated: 2026-11-11
 - **Odoo 버전별 폴더**: 지금은 `19.0/`만. 앞으로 Odoo 버전에 맞춰 `20.0/` 등 폴더가 늘어난다. 각 버전 폴더가 그 버전의 `addons_path` 단위.
 - 현재 대상: **19.0 Enterprise** (`edb_*` 라이선스 `OEEL-1`, `edb_helpdesk`가 EE 전용 `helpdesk`에 의존)
 - 모듈 지도 → [modules.md](modules.md)
-- 기능 영역: 바로빌 전자문서·메시징(`barobill_*`) · 회사 공통/보안(`edb_*`) · 고객센터(`edb_helpdesk`) · 전역 검색(`global_search`)
+- 기능 영역: 바로빌 전자문서·메시징(`barobill_*`) · 회사 공통/보안(`edb_*`) · 고객사 공통 고객센터 커스터마이징(`edb_helpdesk`) · 전역 검색(`global_search`)
 - 예정: 소셜 로그인 `edb_auth` + `edb_auth_<provider>` (README 「인증·로그인」)
 
 ## 핵심 요구사항 (코드·README에서 확인되는 것)
@@ -36,4 +36,4 @@ updated: 2026-11-11
 - 바로빌: 모델 = 업무 로직, `controllers/` 일반 클래스 = SOAP 호출만 → 루트 `README.md` 「바로빌 아키텍처」
 
 ## 아직 모르는 것
-- [❓확인 필요: 사내 운영 인스턴스(예: 고객센터·보안 모듈을 실제로 돌리는 서버)가 있는지]
+- 없음 (2026-11-11 기준). 사내 운영 인스턴스 없음 — 모든 모듈은 고객사 프로젝트에 복사해서만 쓰인다.

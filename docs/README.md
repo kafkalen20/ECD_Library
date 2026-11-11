@@ -19,7 +19,7 @@
 
 ## 결정 (decisions)
 - [0001. 설계 결정을 ADR로 기록한다](decisions/0001-record-architecture-decisions.md) — 왜/기각한 대안을 남기는 규칙
-<!-- [0002. 제목](decisions/0002-xxx.md) — 한 줄 -->
+- [0002. helpdesk 정수 티켓 번호로 정렬](decisions/0002-helpdesk-ticket-no-integer-sort.md) — 문자열 `ticket_ref` 정렬 오류 회피용 `ticket_no`
 
 ## 장애·정정 (issues)
 <!-- [yyyy-mm-dd 제목](issues/yyyy-mm-dd-xxx.md) — 한 줄 -->
