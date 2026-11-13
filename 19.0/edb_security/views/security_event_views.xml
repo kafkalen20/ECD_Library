@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_security_event_list" model="ir.ui.view">
+        <field name="name">edb.security.event.list</field>
+        <field name="model">edb.security.event</field>
+        <field name="arch" type="xml">
+            <list string="보안 이벤트" create="false" edit="false" delete="false">
+                <field name="create_date" string="발생시각"/>
+                <field name="event_type"/>
+                <field name="severity" widget="badge" class="o_secmon_severity" options="{'color_field': 'severity_color'}"/>
+                <field name="severity_color" column_invisible="1"/>
+                <field name="rule_ids" widget="many2many_tags" optional="show"/>
+                <field name="login_display"/>
+                <field name="user_id"/>
+                <field name="client_ip"/>
+                <field name="model_name"/>
+                <field name="record_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_security_event_form" model="ir.ui.view">
+        <field name="name">edb.security.event.form</field>
+        <field name="model">edb.security.event</field>
+        <field name="arch" type="xml">
+            <form string="보안 이벤트" create="false" edit="false">
+                <header>
+                    <button name="action_trace_user" type="object"
+                            string="이 계정 추적" class="btn-primary"/>
+                    <button name="action_trace_ip" type="object"
+                            string="이 IP 추적" class="btn-secondary"
+                            invisible="not client_ip"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="create_date" string="발생시각"/>
+                            <field name="event_type"/>
+                            <field name="severity" widget="badge" class="o_secmon_severity" options="{'color_field': 'severity_color'}"/>
+                            <field name="severity_color" invisible="1"/>
+                            <field name="rule_ids" widget="many2many_tags"/>
+                            <field name="login_display"/>
+                            <field name="user_id"/>
+                        </group>
+                        <group>
+                            <field name="client_ip"/>
+                            <field name="ip_trusted"/>
+                            <field name="auth_method"/>
+                            <field name="http_path"/>
+                            <field name="user_agent"/>
+                        </group>
+                    </group>
+                    <group string="대상">
+                        <field name="model_name"/>
+                        <field name="record_count"/>
+                        <field name="field_names"/>
+                        <field name="detail"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_security_event_search" model="ir.ui.view">
+        <field name="name">edb.security.event.search</field>
+        <field name="model">edb.security.event</field>
+        <field name="arch" type="xml">
+            <search string="보안 이벤트">
+                <field name="login"/>
+                <field name="client_ip"/>
+                <field name="user_id"/>
+                <filter name="f_critical" string="치명" domain="[('severity','=','critical')]"/>
+                <filter name="f_login_failed" string="로그인 실패" domain="[('event_type','=','login_failed')]"/>
+                <separator/>
+                <filter name="f_today" string="오늘"
+                        domain="[('create_date','&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0)))]"/>
+                <group name="group_by">
+                    <filter name="g_type" string="유형" context="{'group_by':'event_type'}"/>
+                    <filter name="g_user" string="사용자" context="{'group_by':'user_id'}"/>
+                    <filter name="g_ip" string="IP" context="{'group_by':'client_ip'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_security_event" model="ir.actions.act_window">
+        <field name="name">보안 이벤트</field>
+        <field name="res_model">edb.security.event</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_security_event_search"/>
+    </record>
+
+    <menuitem id="menu_security_event"
+              name="이벤트"
+              parent="edb_security.menu_root"
+              action="action_security_event"
+              sequence="10"/>
+</odoo>

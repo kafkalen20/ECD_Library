@@ -6,7 +6,7 @@ import logging
 import pytz
 
 from odoo import api, fields, models
-from odoo.exceptions import AccessDenied
+from odoo.exceptions import AccessError
 from odoo.http import STORED_SESSION_BYTES, request
 from odoo.tools import SQL
 
@@ -83,14 +83,9 @@ class EdbDeviceAccess(models.Model):
     event_type = fields.Selection(
         selection=[
             ('access', '접속'),
-            ('login_failed', '로그인 실패'),
         ],
         string='유형', default='access', index='btree', required=True,
-        help='접속 = 로그인/재접속, 로그인 실패 = 인증 실패.',
-    )
-    login = fields.Char(
-        string='로그인 시도값',
-        help='로그인 실패 시 입력된 로그인(아이디). 존재하지 않는 계정도 기록된다.',
+        help='접속 = 로그인/재접속. 로그인 실패는 보안 이벤트(edb.security.event)에 기록한다.',
     )
 
     def _compute_display_name(self):
@@ -264,6 +259,9 @@ class EdbDeviceAccess(models.Model):
             추이·기기·시간대·요일·사용자별·미접속 판정이 이 기간을 따른다.
             추이 그래프는 주/월은 일별, 년은 월별로 집계한다.
         """
+        # 원시 SQL 집계라 ACL 을 타지 않는다. RPC·엑셀 경로 모두 여기서 막는다.
+        if not (self.env.su or self.env.user.has_group('edb_security.group_security_monitor')):
+            raise AccessError("보안 감사자만 접속 현황을 볼 수 있습니다.")
         cr = self.env.cr
         tz_name = self.env.context.get('tz') or self.env.user.tz or 'Asia/Seoul'
         tz = pytz.timezone(tz_name)
@@ -503,28 +501,21 @@ class EdbDeviceAccess(models.Model):
         for it in inactive:
             it.pop('_sort', None)
 
-        # ── 로그인 실패 건수 (선택 기간) ──
-        cr.execute(
-            "SELECT COUNT(*) FROM edb_device_access "
-            "WHERE event_type = 'login_failed' AND access_datetime >= %s", (s_win,))
-        failed_login_count = cr.fetchone()[0] or 0
-
-        # ── 최근 로그인 실패 (선택 기간, 최대 20) ──
-        cr.execute(
-            "SELECT access_datetime, login, ip_address, device_type, os_family "
-            "FROM edb_device_access "
-            "WHERE event_type = 'login_failed' AND access_datetime >= %s "
-            "ORDER BY access_datetime DESC LIMIT 20", (s_win,))
+        # ── 로그인 실패 (선택 기간) ── 보안 이벤트에서 읽는다(로그인값은 저장 시 가려져 있음)
+        Event = self.env['edb.security.event'].sudo()
+        failed_domain = [('event_type', '=', 'login_failed'), ('create_date', '>=', s_win)]
+        failed_login_count = Event.search_count(failed_domain)
         recent_failed = []
-        for f_dt, f_login, f_ip, f_dtype, f_osf in cr.fetchall():
-            fl = pytz.utc.localize(f_dt).astimezone(tz)
+        for ev in Event.search(failed_domain, limit=20):
+            fl = pytz.utc.localize(ev.create_date).astimezone(tz)
+            ua = ev.user_agent or ''
             recent_failed.append({
                 'time_label': '%d/%d %02d:%02d' % (fl.month, fl.day, fl.hour, fl.minute),
-                'login': f_login or '(없음)',
-                'ip': f_ip or '-',
+                'login': ev.login_display or '(없음)',
+                'ip': ev.client_ip or '-',
                 'device_label': ' · '.join(filter(None, [
-                    'PC' if f_dtype == 'computer' else ('모바일' if f_dtype == 'mobile' else ''),
-                    os_label.get(f_osf, ''),
+                    ('모바일' if self._is_mobile_user_agent(ua, None) else 'PC') if ua else '',
+                    os_label_map.get(self._os_family_from_user_agent(ua, None), '') if ua else '',
                 ])) or '-',
             })
 
@@ -647,70 +638,8 @@ class EdbDeviceAccess(models.Model):
         return output.read()
 
     # ------------------------------------------------------------------
-    # 이벤트 기록(로그인 실패) + 보관정책
+    # 보관정책
     # ------------------------------------------------------------------
-    @api.model
-    def _edb_request_device_vals(self, req):
-        """요청의 User-Agent/IP 로 기기·브라우저 값을 dict 로 뽑는다."""
-        vals = {
-            'ip_address': None,
-            'device': None, 'browser': None, 'access_detail': None,
-            'os_family': 'other', 'device_type': 'computer',
-        }
-        if not req:
-            return vals
-        ua = req.httprequest.user_agent
-        vals['ip_address'] = req.httprequest.remote_addr
-        if ua:
-            vals['device'] = ua.platform
-            vals['access_detail'] = ua.string
-            vals['browser'] = self._browser_from_user_agent(ua.string, ua.browser)
-            vals['os_family'] = self._os_family_from_user_agent(ua.string, ua.platform)
-            vals['device_type'] = 'mobile' if self._is_mobile_user_agent(ua.string, ua.platform) else 'computer'
-        return vals
-
-    @api.model
-    def _edb_insert_event(self, cr, vals):
-        """이벤트 1건 INSERT (호출자가 커서를 넘긴다)."""
-        cr.execute(SQL(
-            """
-            INSERT INTO edb_device_access
-                (event_type, user_id, login, session_identifier, access_datetime,
-                 device, browser, access_detail, os_family, device_type, ip_address,
-                 create_uid, write_uid, create_date, write_date)
-            VALUES
-                (%(event_type)s, %(user_id)s, %(login)s, %(session_identifier)s, %(access_datetime)s,
-                 %(device)s, %(browser)s, %(access_detail)s, %(os_family)s, %(device_type)s, %(ip_address)s,
-                 %(cuid)s, %(cuid)s, %(access_datetime)s, %(access_datetime)s)
-            """,
-            event_type=vals.get('event_type', 'access'),
-            user_id=vals.get('user_id'),
-            login=vals.get('login'),
-            session_identifier=vals.get('session_identifier'),
-            access_datetime=vals.get('access_datetime') or datetime.now(),
-            device=vals.get('device'), browser=vals.get('browser'),
-            access_detail=vals.get('access_detail'), os_family=vals.get('os_family'),
-            device_type=vals.get('device_type'), ip_address=vals.get('ip_address'),
-            cuid=self.env.uid or 1,
-        ))
-
-    @api.model
-    def _edb_log_failed_login(self, login, req):
-        """로그인 실패 1건 기록(event_type='login_failed').
-
-        인증 트랜잭션이 롤백돼도 남도록 **별도 커서**로 커밋한다. user_id 는 없다.
-        """
-        vals = self._edb_request_device_vals(req)
-        vals.update({
-            'event_type': 'login_failed',
-            'user_id': None,
-            'login': login,
-            'access_datetime': datetime.now(),
-        })
-        with self.env.registry.cursor(readonly=False) as cr:
-            self._edb_insert_event(cr, vals)
-        _logger.info('로그인 실패 기록: login=%s ip=%s', login, vals.get('ip_address'))
-
     @api.autovacuum
     def _gc_device_access(self):
         """보관기간(기본 365일) 지난 접속 내역 자동 삭제. ICP 로 일수 조정.
@@ -726,23 +655,6 @@ class EdbDeviceAccess(models.Model):
         self.env.cr.execute(
             "DELETE FROM edb_device_access WHERE access_datetime < %s", (limit,))
         _logger.info('접속 내역 GC: %s일 경과 %s건 삭제', days, self.env.cr.rowcount)
-
-
-class ResUsers(models.Model):
-    _inherit = 'res.users'
-
-    def _login(self, credential, user_agent_env):
-        """로그인 실패 시 접속 내역에 실패 이벤트를 남긴다(보안 감사)."""
-        try:
-            return super()._login(credential, user_agent_env)
-        except AccessDenied:
-            try:
-                req = request if request else None
-                self.env['edb.device.access'].sudo()._edb_log_failed_login(
-                    (credential or {}).get('login'), req)
-            except Exception:  # pragma: no cover - 감사 기록 실패가 로그인 흐름을 막지 않음
-                _logger.exception('로그인 실패 내역 적재 실패')
-            raise
 
 
 class ResDeviceLog(models.Model):
