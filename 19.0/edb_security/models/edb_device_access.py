@@ -638,52 +638,8 @@ class EdbDeviceAccess(models.Model):
         return output.read()
 
     # ------------------------------------------------------------------
-    # 이벤트 기록(로그인 실패) + 보관정책
+    # 보관정책
     # ------------------------------------------------------------------
-    @api.model
-    def _edb_request_device_vals(self, req):
-        """요청의 User-Agent/IP 로 기기·브라우저 값을 dict 로 뽑는다."""
-        vals = {
-            'ip_address': None,
-            'device': None, 'browser': None, 'access_detail': None,
-            'os_family': 'other', 'device_type': 'computer',
-        }
-        if not req:
-            return vals
-        ua = req.httprequest.user_agent
-        vals['ip_address'] = req.httprequest.remote_addr
-        if ua:
-            vals['device'] = ua.platform
-            vals['access_detail'] = ua.string
-            vals['browser'] = self._browser_from_user_agent(ua.string, ua.browser)
-            vals['os_family'] = self._os_family_from_user_agent(ua.string, ua.platform)
-            vals['device_type'] = 'mobile' if self._is_mobile_user_agent(ua.string, ua.platform) else 'computer'
-        return vals
-
-    @api.model
-    def _edb_insert_event(self, cr, vals):
-        """이벤트 1건 INSERT (호출자가 커서를 넘긴다)."""
-        cr.execute(SQL(
-            """
-            INSERT INTO edb_device_access
-                (event_type, user_id, session_identifier, access_datetime,
-                 device, browser, access_detail, os_family, device_type, ip_address,
-                 create_uid, write_uid, create_date, write_date)
-            VALUES
-                (%(event_type)s, %(user_id)s, %(session_identifier)s, %(access_datetime)s,
-                 %(device)s, %(browser)s, %(access_detail)s, %(os_family)s, %(device_type)s, %(ip_address)s,
-                 %(cuid)s, %(cuid)s, %(access_datetime)s, %(access_datetime)s)
-            """,
-            event_type=vals.get('event_type', 'access'),
-            user_id=vals.get('user_id'),
-            session_identifier=vals.get('session_identifier'),
-            access_datetime=vals.get('access_datetime') or datetime.now(),
-            device=vals.get('device'), browser=vals.get('browser'),
-            access_detail=vals.get('access_detail'), os_family=vals.get('os_family'),
-            device_type=vals.get('device_type'), ip_address=vals.get('ip_address'),
-            cuid=self.env.uid or 1,
-        ))
-
     @api.autovacuum
     def _gc_device_access(self):
         """보관기간(기본 365일) 지난 접속 내역 자동 삭제. ICP 로 일수 조정.

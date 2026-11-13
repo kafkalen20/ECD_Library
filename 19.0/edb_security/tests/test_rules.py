@@ -77,6 +77,30 @@ class TestRules(TransactionCase):
         self.assertEqual(len(hits), 1)
         self.assertEqual(hits.matched_value, 6)
 
+    def test_evaluate_keeps_rule_write_uid(self):
+        """1분 cron 이 last_eval 을 갱신해도 룰의 마지막 수정자·수정 시각은
+        그대로여야 한다. README B3 이 룰 변경 추적 수단으로 write_uid/write_date
+        를 안내하기 때문이다."""
+        rule = self.Rule.create({
+            'name': '테스트 수정자',
+            'code': 'T-WU',
+            'rule_kind': 'threshold',
+            'event_type': 'login_failed',
+            'threshold_count': 5,
+        })
+        editor = create_user(self.env, {'name': '룰 수정자', 'login': 'secmon_rule_editor'})
+        old_date = fields.Datetime.now() - timedelta(days=3)
+        self.env.cr.execute(
+            "UPDATE edb_security_rule SET write_uid = %s, write_date = %s WHERE id = %s",
+            (editor.id, old_date, rule.id))
+        rule.invalidate_recordset()
+
+        rule._evaluate()
+
+        self.assertTrue(rule.last_eval)
+        self.assertEqual(rule.write_uid, editor)
+        self.assertEqual(rule.write_date, old_date)
+
     def test_threshold_fires_at_exactly_threshold(self):
         rule = self.Rule.create({
             'name': '경계', 'code': 'T-EQ', 'rule_kind': 'threshold',

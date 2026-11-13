@@ -111,7 +111,12 @@ class SecurityRule(models.Model):
         window_end = fields.Datetime.now()
         handler = getattr(self, '_evaluate_%s' % self.rule_kind)
         handler(window_start, window_end)
-        self.sudo().write({'last_eval': window_end})
+        # ORM write() 는 write_uid/write_date 까지 덮어 룰을 마지막으로 고친 사람을
+        # 1분마다 지운다 (README B3 의 추적 수단). 이 컬럼만 SQL 로 쓴다.
+        self.env.cr.execute(
+            "UPDATE edb_security_rule SET last_eval = %s WHERE id = %s",
+            (window_end, self.id))
+        self.invalidate_recordset(['last_eval'])
 
     def _evaluate_threshold(self, window_start, window_end):
         """Odoo 19 에서 read_group 은 deprecated 다. _read_group 은 튜플 리스트를 준다."""
