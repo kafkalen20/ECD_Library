@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="cron_detect" model="ir.cron">
+        <field name="name">보안 모니터링: 이상징후 탐지</field>
+        <field name="model_id" ref="model_edb_security_rule"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_evaluate()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

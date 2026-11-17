@@ -1,3 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_edb_device_access_user,edb.device.access user,model_edb_device_access,base.group_user,1,0,0,0
+access_edb_device_access_monitor,edb.device.access monitor,model_edb_device_access,edb_security.group_security_monitor,1,0,0,0
 access_edb_device_access_system,edb.device.access system,model_edb_device_access,base.group_system,1,1,1,1
+access_security_event_monitor,edb.security.event monitor,model_edb_security_event,edb_security.group_security_monitor,1,0,0,0
+access_security_rule_monitor,edb.security.rule monitor,model_edb_security_rule,edb_security.group_security_monitor,1,1,1,0
+access_security_rule_hit_monitor,edb.security.rule.hit monitor,model_edb_security_rule_hit,edb_security.group_security_monitor,1,0,0,0

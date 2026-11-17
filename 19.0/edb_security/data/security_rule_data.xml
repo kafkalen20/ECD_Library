@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="rule_r01" model="edb.security.rule">
+        <field name="name">계정별 로그인 실패 반복</field>
+        <field name="code">R-01</field>
+        <field name="rule_kind">threshold</field>
+        <field name="event_type">login_failed</field>
+        <field name="aggregate">count</field>
+        <field name="group_by">login</field>
+        <field name="threshold_count">5</field>
+        <field name="window_minutes">10</field>
+        <field name="cooldown_minutes">60</field>
+        <field name="severity">high</field>
+    </record>
+
+    <record id="rule_r01b" model="edb.security.rule">
+        <field name="name">IP별 로그인 실패 반복</field>
+        <field name="code">R-01B</field>
+        <field name="rule_kind">threshold</field>
+        <field name="event_type">login_failed</field>
+        <field name="aggregate">count</field>
+        <field name="group_by">client_ip</field>
+        <field name="threshold_count">30</field>
+        <field name="window_minutes">10</field>
+        <field name="cooldown_minutes">30</field>
+        <field name="severity">critical</field>
+    </record>
+
+    <record id="rule_r02" model="edb.security.rule">
+        <field name="name">관리자 신규 IP 로그인</field>
+        <field name="code">R-02</field>
+        <field name="rule_kind">new_ip</field>
+        <field name="event_type">login_success</field>
+        <field name="window_minutes">10</field>
+        <field name="cooldown_minutes">30</field>
+        <field name="severity">critical</field>
+        <!-- 관리자(설정 권한, base.group_system)로 스코프를 좁힌다.
+             all_group_ids 는 직접 부여된 그룹뿐 아니라 암묵적으로 포함되는
+             그룹까지 담으므로(odoo/addons/base/models/res_users.py:
+             _compute_all_group_ids), 코어의 has_group() 판정과 동일한 기준이
+             된다. 전 직원 대상이면 저녁 로그인·최초 접속마다 치명 알림이
+             쏟아져 진짜 알림이 묻힌다. -->
+        <field name="condition_domain"
+               eval="'[(\'user_id.all_group_ids\', \'in\', [%d])]' % ref('base.group_system')"/>
+    </record>
+
+    <record id="rule_r03" model="edb.security.rule">
+        <field name="name">관리자 업무시간 외 로그인</field>
+        <field name="code">R-03</field>
+        <field name="rule_kind">offhours</field>
+        <field name="event_type">login_success</field>
+        <field name="window_minutes">10</field>
+        <field name="cooldown_minutes">30</field>
+        <field name="severity">critical</field>
+        <!-- R-02 와 동일한 이유로 관리자 스코프를 둔다. -->
+        <field name="condition_domain"
+               eval="'[(\'user_id.all_group_ids\', \'in\', [%d])]' % ref('base.group_system')"/>
+    </record>
+</odoo>

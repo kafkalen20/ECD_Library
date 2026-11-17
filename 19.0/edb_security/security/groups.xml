@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_security_monitor" model="ir.module.category">
+        <field name="name">Security Monitor</field>
+        <field name="description">보안 모니터링 접근 권한</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="privilege_security_monitor" model="res.groups.privilege">
+        <field name="name">보안 모니터링</field>
+        <field name="category_id" ref="module_category_security_monitor"/>
+    </record>
+
+    <record id="group_security_monitor" model="res.groups">
+        <field name="name">보안 감사자</field>
+        <field name="privilege_id" ref="privilege_security_monitor"/>
+        <field name="comment">보안 이벤트·에러 로그·탐지 룰을 조회할 수 있다.</field>
+    </record>
+
+    <!-- 관리자가 우리 그룹을 자동으로 갖도록 imply 한다. (4, ...) 는 기존
+         implied_ids 를 유지한 채 추가한다. -->
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_security_monitor'))]"/>
+    </record>
+</odoo>

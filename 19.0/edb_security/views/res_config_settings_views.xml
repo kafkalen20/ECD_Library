@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_res_config_settings" model="ir.ui.view">
+        <field name="name">res.config.settings.secmon</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="보안 모니터링" name="edb_security"
+                     groups="edb_security.group_security_monitor">
+                    <block title="프리셋">
+                        <setting string="프리셋 적용"
+                                 help="최소: 로그인 수집·탐지 엔진·치명 알림만 켜고 나머지는 끔 / 표준: 전체 켜기">
+                            <button name="action_apply_preset_minimal" type="object"
+                                    string="최소" class="btn-secondary"/>
+                            <button name="action_apply_preset_standard" type="object"
+                                    string="표준" class="btn-primary"/>
+                        </setting>
+                    </block>
+                    <block title="수집">
+                        <setting string="로그인 이벤트">
+                            <field name="secmon_hook_login"/>
+                        </setting>
+                        <!-- 사용자 변경·API 키·권한 구조 변경·설정 변경 토글은
+                             뷰에서 제거했다. 이 훅들(H-2/H-3/H-4/H-7)의 소비자
+                             (guards.is_active 호출부)가 아직 없어 켜도 아무것도
+                             수집하지 않는다 — 설정이 거짓말을 하면 안 된다.
+                             필드 정의(res_config_settings.py) 와 guards.TOGGLES
+                             의 hook_user_write / hook_apikey / hook_acl /
+                             hook_config 코드는 그대로 두었으므로, 소비자가
+                             생기면 이 <setting> 블록만 되살리면 된다. -->
+                    </block>
+                    <block title="탐지·알림">
+                        <setting string="탐지 엔진">
+                            <field name="secmon_detect_engine"/>
+                        </setting>
+                        <setting string="치명 즉시 알림">
+                            <field name="secmon_notify_critical"/>
+                        </setting>
+                        <!-- 일일 다이제스트 토글은 뷰에서 제거했다. 다이제스트
+                             cron 이 Phase 2 항목이라 아직 존재하지 않아, 이
+                             토글을 켜도 아무 일도 일어나지 않는다. 필드 정의
+                             (res_config_settings.py) 와 guards.TOGGLES 의
+                             'notify_digest' 코드는 그대로 두었으므로, Phase 2
+                             에서 소비자(cron)가 생기면 이 <setting> 블록만
+                             되살리면 된다. -->
+                    </block>
+                    <block title="업무시간·보존">
+                        <setting string="타임존">
+                            <field name="secmon_business_tz"/>
+                        </setting>
+                        <setting string="업무 시작 / 종료 (시)">
+                            <field name="secmon_business_start"/>
+                            <field name="secmon_business_end"/>
+                        </setting>
+                        <!-- 이벤트 보존(개월) 필드도 뷰에서 제거했다. 파기
+                             cron 이 Phase 2 항목이라 존재하지 않으므로, 운영자가
+                             여기에 12개월을 넣어도 12개월 뒤 아무것도 파기되지
+                             않는다 — 로그 보존기간을 다루는 모듈에서 보존
+                             설정이 거짓말을 하면 안 된다. 필드 정의
+                             (res_config_settings.py) 와 guards.TOGGLES 의
+                             'gc_enabled' 코드는 그대로 두었으므로, Phase 2 에서
+                             파기 cron 이 생기면 이 <setting> 블록만 되살리면
+                             된다. -->
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>
