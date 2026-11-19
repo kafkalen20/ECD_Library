@@ -90,12 +90,17 @@ class SecurityRuleHit(models.Model):
         if not users:
             # 상위 그룹(group_system 등)이 imply 하는 사용자까지 포함해야 한다.
             users = self.env.ref('edb_security.group_security_monitor').all_user_ids
+        note = '측정값: %s / 상세는 이 활동이 붙은 히트 레코드에서 확인하세요.' % self.matched_value
+        # 비밀번호만 통과한 시점의 발동이면 담당자가 '로그인됨'으로 오해하지 않게 단계를 적는다.
+        events = self.sudo().event_ids
+        if events and set(events.mapped('event_type')) == {'login_mfa_pending'}:
+            note += '<br/>단계: 비밀번호 통과, 2단계 인증 대기'
         for user in users:
             self.sudo().activity_schedule(
                 'mail.mail_activity_data_warning',
                 summary='[보안] %s' % self.rule_id.name,
                 # group_key 는 사용자가 입력한 로그인 문자열일 수 있어(비밀번호 오타 등)
                 # 메일로 내보내지 않는다. 원문은 히트 레코드에서 권한자만 본다.
-                note='측정값: %s / 상세는 이 활동이 붙은 히트 레코드에서 확인하세요.' % self.matched_value,
+                note=note,
                 user_id=user.id,
             )

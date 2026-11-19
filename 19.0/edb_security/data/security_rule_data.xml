@@ -31,6 +31,8 @@
         <field name="code">R-02</field>
         <field name="rule_kind">new_ip</field>
         <field name="event_type">login_success</field>
+        <!-- 비밀번호 통과(2단계 인증 대기) 시점부터 본다 (SEC-1, 2026-11-16 결정). -->
+        <field name="include_mfa_pending" eval="True"/>
         <field name="window_minutes">10</field>
         <field name="cooldown_minutes">30</field>
         <field name="severity">critical</field>
@@ -49,6 +51,8 @@
         <field name="code">R-03</field>
         <field name="rule_kind">offhours</field>
         <field name="event_type">login_success</field>
+        <!-- 비밀번호 통과(2단계 인증 대기) 시점부터 본다 (SEC-1, 2026-11-16 결정). -->
+        <field name="include_mfa_pending" eval="True"/>
         <field name="window_minutes">10</field>
         <field name="cooldown_minutes">30</field>
         <field name="severity">critical</field>
