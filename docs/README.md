@@ -28,7 +28,7 @@
 <!-- [기능명 설계](design/기능명.md) — 한 줄 (status) -->
 - [SEC-1 2단계 인증 단계별 로그인 기록](design/edb-security-sec1-mfa-login-events.md) — 2FA 대기·실패·통과를 나눠 기록, R-02·R-03은 대기 단계부터 (초안)
 - [SEC-2 로그인 실패 기록 지연 해소](design/edb-security-sec2-detached-flush-race.md) — 분리 커넥션 큐의 락 해제 경합 수정 (초안)
-- [SEC-3 로그인 실패 기록에 계정 연결](design/edb-security-sec3-failed-login-user.md) — 실패 이벤트에 user_id 저장 (초안)
+- [SEC-3 로그인 실패 기록에 계정 연결](design/edb-security-sec3-failed-login-user.md) — 실패 이벤트에 user_id 저장 (구현)
 - [SEC-4 탐지 중복 검사 정리](design/edb-security-sec4-rule-rescan.md) — 같은 이벤트 재발동 방지·새 IP 조회 수 축소 (초안)
 - [SEC-5 설정 스위치 연결 검토](design/edb-security-sec5-settings-toggles.md) — 이미 화면에서 숨김 — 종결
 - [SEC-6 개인정보 가림 중복 처리 검토](design/edb-security-sec6-double-masking.md) — 멱등 확인 — 종결, 경계 누락 1건 발견
