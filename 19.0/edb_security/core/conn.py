@@ -88,6 +88,12 @@ def flush(dbname):
     보호하지 않으므로, DB 가 느려지기만 한 저하 상태에서 이 락을 오래
     쥐고 있지 않기 위함이다). 남은 행은 다음 enqueue() 가 이어서 처리한다.
 
+    락을 놓은 뒤 큐를 다시 확인해, 비어 있지 않으면 한 바퀴 더 돈다.
+    다른 스레드가 이 락을 쥔 동안 행을 넣고 그냥 돌아갔더라도(락을 못
+    잡았으므로), 락을 쥐고 있던 쪽이 놓은 직후 그 행을 가져간다. 놓은 뒤에
+    들어온 행이면 넣은 스레드가 스스로 락을 잡는다 — 어느 쪽이든 기록된다.
+    예산 초과·백오프 진입 시에는 다시 돌지 않는다 (무한 재시도 방지).
+
     한계 두 가지는 고칠 수 없어 문서화만 한다:
     - 시간 예산은 커넥션 획득 이후 구간에만 적용된다. 풀 고갈이나 네트워크
       지연으로 db_connect() 자체가 블로킹되면 그 대기는 예산 밖이다.
@@ -95,15 +101,30 @@ def flush(dbname):
       마지막 enqueue() 이후 호출이 없으면 그 행들은 프로세스가 사는 동안
       큐에 남고, 재시작 시 유실된다.
     """
-    if _in_backoff(dbname):
-        return 0
-    if not _LOCK.acquire(blocking=False):
-        return 0
     written = 0
+    while _queue(dbname) and not _in_backoff(dbname):
+        if not _LOCK.acquire(blocking=False):
+            # 다른 스레드가 비우는 중. 그 스레드가 락을 놓은 뒤 다시 확인한다.
+            return written
+        try:
+            n, finished = _drain(dbname)
+            written += n
+        finally:
+            _LOCK.release()
+        if not finished:
+            # 예산 초과·커넥션 실패: 남은 행은 다음 enqueue() 에 맡긴다.
+            break
+    return written
+
+
+def _drain(dbname):
+    """락을 쥔 상태에서 호출한다. (기록한 행 수, 큐를 다 비웠는가) 를 돌려준다."""
+    written = 0
+    finished = False
     try:
         q = _queue(dbname)
         if not q:
-            return 0
+            return 0, True
         deadline = time.monotonic() + FLUSH_BUDGET_SEC
         with sql_db.db_connect(dbname).cursor() as cr:
             cr.execute("SET LOCAL statement_timeout = %s", (STATEMENT_TIMEOUT_MS,))
@@ -131,14 +152,14 @@ def flush(dbname):
                 else:
                     cr.execute("RELEASE SAVEPOINT secmon_row")
                     written += 1
+            finished = not q
         _note_success(dbname)
     except Exception:
         # 커넥션·커밋 단위 실패. 개별 행 실패는 이미 안에서 카운트했으므로
         # 여기서는 "INSERT 는 성공했지만 커밋되지 못한 행" 만 유실로 센다.
         _count_drop(dbname, written)
         written = 0
+        finished = False
         _note_failure(dbname)
         _logger.warning("보안 이벤트 분리 기록 실패", exc_info=True)
-    finally:
-        _LOCK.release()
-    return written
+    return written, finished

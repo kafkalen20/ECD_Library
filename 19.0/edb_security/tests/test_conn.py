@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from odoo import sql_db
 from odoo.tests.common import TransactionCase
 from odoo.addons.edb_security.core import conn
@@ -50,6 +52,49 @@ class TestConn(TransactionCase):
                 ('detached-probe',))
             count = cr.fetchone()[0]
         self.assertEqual(count, 1)
+
+    def test_flush_picks_up_row_enqueued_during_release(self):
+        """락을 놓는 사이에 들어온 행도 같은 flush() 호출에서 기록된다 (SEC-2)."""
+        db = self.env.cr.dbname
+        conn.reset(db)
+        columns = ['event_type', 'severity', 'login']
+        logins = ('race-first', 'race-second')
+
+        def _cleanup():
+            # 실제 COMMIT 된 행이라 별도 커넥션으로 지운다.
+            with sql_db.db_connect(db).cursor() as cr:
+                cr.execute(
+                    "DELETE FROM edb_security_event WHERE login IN %s", (logins,))
+            conn.reset(db)
+        self.addCleanup(_cleanup)
+
+        real_lock = conn._LOCK
+
+        class _LockInjectingOnRelease:
+            """처음 release() 직전에 큐에 행을 넣는다. 다른 스레드의
+            enqueue() 가 락을 못 잡고 돌아간 상황을 그대로 만든다."""
+            injected = False
+
+            def acquire(self, blocking=True):
+                return real_lock.acquire(blocking)
+
+            def release(self):
+                if not self.injected:
+                    self.injected = True
+                    conn._queue(db).append(
+                        (tuple(columns), ('login_failed', 'high', logins[1])))
+                real_lock.release()
+
+        with patch.object(conn, '_LOCK', _LockInjectingOnRelease()):
+            conn.enqueue(db, columns, ['login_failed', 'high', logins[0]])
+
+        with sql_db.db_connect(db).cursor() as cr:
+            cr.execute(
+                "SELECT login FROM edb_security_event WHERE login IN %s ORDER BY id",
+                (logins,))
+            stored = [r[0] for r in cr.fetchall()]
+        self.assertEqual(stored, list(logins))
+        self.assertFalse(conn._queue(db))
 
     def test_backoff_blocks_flush_and_resets_on_success(self):
         db = 'unit-test-fake-db2'
