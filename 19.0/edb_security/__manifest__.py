@@ -6,13 +6,16 @@
     'author': 'Ecodoobiz',
     'website': 'https://ecodoobiz.com',
     'category': 'Tools',
-    'version': '19.0.2.0.0',
+    'version': '19.0.2.1.0',
     'license': 'OEEL-1',
     'depends': [
         'edb_common',
         'base',
         'web',
         'mail',
+        # 2단계 인증 실패를 보려면 우리 _check_credentials 가 MRO 에서 auth_totp(_mail)
+        # 보다 위에 있어야 한다 (자기 유형이면 super() 를 부르지 않음). 둘 다 auto_install.
+        'auth_totp_mail',
     ],
     'data': [
         'security/groups.xml',

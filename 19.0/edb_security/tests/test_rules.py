@@ -511,3 +511,59 @@ class TestRules(TransactionCase):
             self.Hit.sudo().create({'rule_id': rule.id, 'severity': 'critical', 'event_ids': [(6, 0, event.ids)]})
         # setUp 에서 룰을 모두 보관했다. 보관된 룰도 이력에는 보여야 한다.
         self.assertEqual(event.rule_ids, r02 | r03)
+
+    # ------------------------------------------------------------------
+    # SEC-1: 2단계 인증 대기
+    # ------------------------------------------------------------------
+    def test_r02_r03_include_mfa_pending_by_default(self):
+        for xmlid in ('edb_security.rule_r02', 'edb_security.rule_r03'):
+            self.assertTrue(self.env.ref(xmlid).include_mfa_pending, xmlid)
+
+    def test_r02_fires_on_mfa_pending_once(self):
+        """관리자 새 IP 의 비밀번호 통과에서 발동하고, 이어진 2단계 성공에서는 다시 알리지 않는다 (R5·R6)."""
+        rule = self.env.ref('edb_security.rule_r02')
+        admin = self.env.ref('base.user_admin')
+        ip = '203.0.113.201'
+        vals = {'user_id': admin.id, 'login': admin.login, 'client_ip': ip}
+
+        self.Event.create(dict(vals, event_type='login_mfa_pending'))
+        rule._evaluate()
+        hits = self.Hit.search([('rule_id', '=', rule.id), ('group_key', '=', '%s@%s' % (admin.login, ip))])
+        self.assertEqual(len(hits), 1)
+
+        activity = self.env['mail.activity'].search([
+            ('res_model', '=', 'edb.security.rule.hit'), ('res_id', '=', hits.id)], limit=1)
+        self.assertIn('2단계 인증 대기', str(activity.note))
+
+        self.Event.create(dict(vals, event_type='login_success', auth_method='totp'))
+        rule._evaluate()
+        self.assertEqual(self.Hit.search_count([('rule_id', '=', rule.id),
+                                                ('group_key', '=', '%s@%s' % (admin.login, ip))]), 1)
+
+    def test_success_hit_note_has_no_mfa_stage(self):
+        rule = self.env.ref('edb_security.rule_r02')
+        admin = self.env.ref('base.user_admin')
+        self.Event.create({'event_type': 'login_success', 'user_id': admin.id,
+                           'login': admin.login, 'client_ip': '203.0.113.202'})
+        rule._evaluate()
+        hit = self.Hit.search([('rule_id', '=', rule.id),
+                               ('group_key', '=', '%s@203.0.113.202' % admin.login)])
+        self.assertEqual(len(hit), 1)
+        activity = self.env['mail.activity'].search([
+            ('res_model', '=', 'edb.security.rule.hit'), ('res_id', '=', hit.id)], limit=1)
+        self.assertTrue(activity)
+        self.assertNotIn('2단계 인증 대기', str(activity.note))
+
+    def test_rule_without_include_mfa_pending_ignores_pending(self):
+        admin = self.env.ref('base.user_admin')
+        rule = self.Rule.create({
+            'name': '테스트 신규 IP (대기 제외)', 'code': 'T-SEC1',
+            'rule_kind': 'new_ip', 'event_type': 'login_success',
+            'window_minutes': 10, 'cooldown_minutes': 60, 'severity': 'high',
+            # DB 에 쌓인 실제 로그인 이벤트에 흔들리지 않게 이 테스트의 IP 만 본다.
+            'condition_domain': "[('client_ip', '=', '203.0.113.203')]",
+        })
+        self.Event.create({'event_type': 'login_mfa_pending', 'user_id': admin.id,
+                           'login': admin.login, 'client_ip': '203.0.113.203'})
+        rule._evaluate()
+        self.assertEqual(self.Hit.search_count([('rule_id', '=', rule.id)]), 0)

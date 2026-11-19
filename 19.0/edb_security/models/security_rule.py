@@ -41,6 +41,9 @@ class SecurityRule(models.Model):
     rule_kind = fields.Selection(RULE_KINDS, string='종류',
                                  default='threshold', required=True)
     event_type = fields.Selection(EVENT_TYPES, string='대상 이벤트', required=True)
+    include_mfa_pending = fields.Boolean(
+        string='2단계 인증 대기 포함',
+        help='대상 이벤트가 로그인 성공일 때, 비밀번호만 통과하고 2단계 인증을 기다리는 시점도 함께 본다.')
     severity = fields.Selection(SEVERITIES, string='심각도',
                                 default='high', required=True)
     severity_color = fields.Integer(compute='_compute_severity_color')
@@ -95,10 +98,18 @@ class SecurityRule(models.Model):
             return max(self.last_eval, floor)
         return sliding
 
+    def _event_types(self):
+        """이 룰이 보는 이벤트 유형 목록. 2단계 인증 대기 포함이면 대기도 넣는다."""
+        self.ensure_one()
+        types = [self.event_type]
+        if self.include_mfa_pending and self.event_type == 'login_success':
+            types.append('login_mfa_pending')
+        return types
+
     def _base_domain(self, window_start):
         self.ensure_one()
         domain = [
-            ('event_type', '=', self.event_type),
+            ('event_type', 'in', self._event_types()),
             ('create_date', '>=', window_start),
         ]
         if self.condition_domain:
@@ -137,8 +148,9 @@ class SecurityRule(models.Model):
         for event in recent:
             if not event.client_ip or not event.user_id:
                 continue
+            # 대기 단계에서 본 IP 도 '본 적 있음'으로 쳐야 대기 → 성공에서 다시 새 IP 가 아니다.
             seen = Event.search_count([
-                ('event_type', '=', self.event_type),
+                ('event_type', 'in', self._event_types()),
                 ('user_id', '=', event.user_id.id),
                 ('client_ip', '=', event.client_ip),
                 ('id', '!=', event.id),

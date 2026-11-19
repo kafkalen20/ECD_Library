@@ -36,6 +36,7 @@
                             <field name="name"/>
                             <field name="rule_kind"/>
                             <field name="event_type"/>
+                            <field name="include_mfa_pending" invisible="event_type != 'login_success'"/>
                             <field name="severity"/>
                             <field name="active" widget="boolean_toggle"/>
                         </group>

@@ -6,6 +6,8 @@ from ..core import guards, masking
 EVENT_TYPES = [
     ('login_success', '로그인 성공'),
     ('login_failed', '로그인 실패'),
+    ('login_mfa_pending', '2단계 인증 대기'),
+    ('login_mfa_failed', '2단계 인증 실패'),
     ('password_changed', '비밀번호 변경'),
     ('account_activated', '계정 활성화'),
     ('apikey', 'API 키'),

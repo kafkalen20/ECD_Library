@@ -1,14 +1,15 @@
 ---
 owner: parkbohee
 created: 2026-11-16
-updated: 2026-11-16
-status: 초안
+updated: 2026-11-19
+status: 구현
 ---
 # SEC-1 2단계 인증 단계별 로그인 기록 설계
 
 > 작업목록: `공통보안모듈_작업목록_261105.xlsx` → `기존 모듈 보완` 시트 SEC-1 (P1)
 > 기준 코드: `feature/edb-security-merge` 커밋 `5ecd47f` (PR #1). 아래 줄 번호는 이 커밋 기준이다. **PR #1이 머지된 뒤 `main`에서 브랜치를 따서 작업한다.**
 > 선행: 없음 / 후행: AUTH-1(2단계 인증 강제)은 이 작업이 끝난 뒤에 한다.
+> **구현: 2026-11-19, 브랜치 `feature/edb-security-sec1-mfa-login` (`main` 기준, PR #1·#3 머지 후).** 설계와 달라진 점은 맨 아래 「구현 메모」.
 
 ## 배경 / 목표 (무엇을 왜)
 
@@ -204,6 +205,16 @@ HTTP 테스트(`HttpCase`)는 서버를 띄우므로, 로컬 서버(8170)가 떠
 - [ ] 1. 대시보드 "로그인 실패" KPI에 `login_mfa_failed`를 합칠지 (지금은 비밀번호 실패만 셈)
 - [ ] 2. 2FA 실패 반복을 잡는 기본 룰(예: 계정별 1시간 3회)을 추가할지. 코어 한도가 1시간 5회라 그 아래로 잡아야 의미가 있다
 - [ ] 3. 대기 상태로 끝난 로그인(2FA를 끝내지 않고 떠난 경우)을 따로 보여 줄지
+
+## 구현 메모 (2026-11-19)
+
+- 대기 판정(`_secmon_mfa_pending`)은 `try/except` 로 감싸 실패하면 '대기 아님'(= `login_success`)으로 본다 (R7: 판정 오류가 로그인을 막지 않게).
+- 비밀번호 단계 이벤트의 `auth_method` 는 코어가 주는 `password` 다. 2단계 이벤트에만 `totp`/`totp_mail`/`trusted_device` 가 들어간다.
+- 시험 `test_non_mfa_user_unchanged` 외에 R4 확인용으로 `test_mfa_user_rpc_api_key_records_success` 를 넣었다. 2FA 사용자는 RPC 에서 비밀번호가 막히고 API 키로만 들어오므로(`_rpc_api_keys_only`) API 키로 시험한다.
+- `test_identitycheck_totp_not_recorded` 는 `_secmon_is_login_mfa` 판정 시험(`test_is_login_mfa_only_while_logging_in`, 요청을 흉내 내 4가지 경우)으로 바꿨다. 요청 없이 `_check_credentials(type='totp')` 를 부르면 코어 `_totp_rate_limit` 의 `assert request` 에 먼저 걸려 의도한 경로를 시험하지 못한다.
+- HTTP 시험(`TestMfaLoginFlow`)은 `admin` 으로 한다. `login_mfa_failed` 는 분리 커넥션으로 COMMIT 되는데 `user_id` 외래키가 있어, 테스트 트랜잭션에서 만든 사용자는 그 커넥션에서 보이지 않아 INSERT 가 실패한다. 비밀번호·2단계 설정은 테스트 트랜잭션과 함께 롤백되고, 커밋된 실패 행은 cleanup 이 지운다.
+- 이벤트 검색 뷰에 "로그인 관련" 필터가 없어 8번(화면)은 손대지 않았다.
+- 기존 시험 `test_new_ip_rule_fires_only_for_unseen_ip`·`test_cron_respects_detect_engine_toggle` 은 DB 에 최근 10분 안의 실제 로그인(처음 보는 IP)이 있으면 실패한다 (조건 없는 신규 IP 룰이 그 이벤트도 잡음). 이번 변경과 무관한 기존 약점이다. 새 시험은 IP 조건을 붙여 피했다.
 
 ## 관련
 
