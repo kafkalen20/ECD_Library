@@ -1,13 +1,15 @@
 ---
 owner: parkbohee
 created: 2026-11-16
-updated: 2026-11-16
-status: 초안
+updated: 2026-11-19
+status: 구현
 ---
 # SEC-3 로그인 실패 기록에 계정 연결 설계
 
 > 작업목록: `공통보안모듈_작업목록_261105.xlsx` → `기존 모듈 보완` 시트 SEC-3 (P1)
 > 기준 코드: `feature/edb-security-merge` 커밋 `5ecd47f` (PR #1). 줄 번호는 이 커밋 기준이다. **PR #1이 머지된 뒤 `main`에서 브랜치를 따서 작업한다.**
+
+> **구현: 2026-11-19, 브랜치 `feature/edb-security-sec3-failed-login-user` (`main` 기준, PR #1·#3 머지 후).** 설계와 달라진 점은 맨 아래 「구현 메모」.
 
 ## 배경 / 목표 (무엇을 왜)
 
@@ -102,6 +104,14 @@ collector.record(self.env, 'hook_login', 'login_failed',
 ## 미결 / 열린 질문
 
 - [ ] 1. 이미 쌓인 실패 이벤트에 `user_id`를 채울지 (위 4번). 채운다면 마이그레이션 스크립트로 한다.
+
+## 구현 메모 (2026-11-19)
+
+- 코드는 설계 1·2번 그대로다. `_secmon_failed_login_value` → `_secmon_failed_login_info` 가 `(login, user_id)` 를 돌려주고, `_login` 실패 경로가 `user_id` 를 같이 넘긴다. 정렬은 코어 `_login`(`odoo/addons/base/models/res_users.py:765`)과 같은 `_get_login_order()` 를 쓴다 (`website` 가 `website_id` 를 앞에 붙임).
+- **시험에서 FK 함정이 있었다.** 실패 기록은 분리 커넥션의 raw INSERT 라 `user_id` FK 가 **COMMIT 된** `res_users` 행만 본다. 테스트 트랜잭션 안에서 만든 사용자를 넣으면 `edb_security_event_user_id_fkey` 위반으로 그 행이 통째로 버려진다 (기존 `test_failed_login_of_existing_login_is_stored_in_plaintext` 가 이렇게 깨졌다). 그래서 계정 연결 시험은 사용자 생성과 실패 로그인을 별도 커서에서 COMMIT 해서 만들고 끝나면 직접 지운다 (`_committed_user`·`_fail_login_committed`). 기존 시험은 `test_failed_login_of_existing_login_links_user` 로 바꿨다.
+- 운영에서는 로그인 대상 계정이 이미 COMMIT 돼 있어 같은 문제가 없다. 다만 실패 행이 큐에 머무는 사이 그 계정이 **삭제**되면 FK 위반으로 그 실패 기록이 버려진다 (`dropped()` 에 집계). 드문 경우라 이번 범위에서는 막지 않았다.
+- 시험 `test_failed_login_info_matches_core_login_lookup` 을 하나 더 넣었다 (R3 — 코어와 같은 domain·정렬로 고른 계정과 같은지).
+- `user_id` 를 빼고 돌리면 계정 연결·보관 계정·계정 추적 시험 3개가 실패하는 것을 확인했다. `edb_security` 시험 68개 모두 통과.
 
 ## 관련
 

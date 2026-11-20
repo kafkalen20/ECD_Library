@@ -168,7 +168,7 @@ HLB 운영 복제본(2026-09 기준)에 모듈을 설치해 직접 확인한 결
 | 7 | `models/security_rule_hit.py:75`, `tests/test_settings.py:117` | `res.groups.all_user_ids` | `res.groups.users` | 이름만 바꾼다. 알림 수신자 폴백이 설정 권한 관리자를 포함하는지 `test_group_system_implies_monitor_group` 으로 재확인한다. |
 | 8 | `tests/test_install.py` | `group.privilege_id.category_id.name` | `group.category_id.name` | 2번 구조 변경에 맞춘다. |
 | 9 | `models/security_rule.py:57` `models.Constraint('unique (code)', ...)` | 있음 | **17/18 없음** | `_sql_constraints = [('code_uniq', 'unique (code)', '...')]` 로 되돌린다. 안 바꾸면 모듈 임포트 단계에서 실패한다. |
-| 10 | `models/res_users.py` `_login` 오버라이드 | 인스턴스 메서드 `_login(self, credential, user_agent_env)`, 반환 `auth_info` dict | **classmethod.** 17: `_login(cls, db, login, password, user_agent_env)` 반환 `user.id`. 18: `_login(cls, db, credential, user_agent_env)` 반환 `auth_info` | 훅을 통째로 다시 써야 한다. `cls` 에는 env 가 없어 `self.env` 를 쓸 수 없다. 실패 기록·`_secmon_failed_login_value` 는 `registry.cursor()` 로 env 를 직접 열어야 한다 (코어 `_login` 이 그렇게 한다). 17 은 `login`/`password` 를 인자로 받고 성공 시 uid 를 반환값에서 얻는다. 이 항목이 백포트에서 가장 크다. |
+| 10 | `models/res_users.py` `_login` 오버라이드 | 인스턴스 메서드 `_login(self, credential, user_agent_env)`, 반환 `auth_info` dict | **classmethod.** 17: `_login(cls, db, login, password, user_agent_env)` 반환 `user.id`. 18: `_login(cls, db, credential, user_agent_env)` 반환 `auth_info` | 훅을 통째로 다시 써야 한다. `cls` 에는 env 가 없어 `self.env` 를 쓸 수 없다. 실패 기록·`_secmon_failed_login_info` 는 `registry.cursor()` 로 env 를 직접 열어야 한다 (코어 `_login` 이 그렇게 한다). 17 은 `login`/`password` 를 인자로 받고 성공 시 uid 를 반환값에서 얻는다. 이 항목이 백포트에서 가장 크다. |
 
 권장: 10번 때문에 Phase 3 계획의 `core/compat.py` 로 버전 분기를 모으는 편이 낫다. 백포트 후에는 각 버전에서 `-i edb_security --test-enable` 로 전체 테스트를 돌린다. 이 목록은 소스 대조 결과일 뿐 17/18 에서 실행해 본 것이 아니다.
 
